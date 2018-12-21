@@ -9,7 +9,7 @@
   "scripts": {
     "prepare": "npm run clean && npm run build",
     "start": "npm test -- --watch --recursive",
-    "test": "mocha",
+    "test": "TS_NODE_PROJECT=./tsconfig.spec.json mocha",
     "clean": "rm -rf lib",
     "build": "tsc"
   },

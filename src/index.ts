@@ -1,5 +1,5 @@
 import Client from './client'
-import Method from './method'
+// import method from './method'
 import Resource from './resource'
 
 export enum AuthenticationTypes {
@@ -28,8 +28,8 @@ export interface Config {
 }
 
 export interface Portal {
-  route: Method, // TODO: function taking some spec
-  resource: Resource, // TODO: function taking some spec
+  // route: method, // TODO: function taking some spec
+  // resource: Resource, // TODO: function taking some spec
   _client: Client,
 }
 
@@ -43,15 +43,17 @@ export interface Response {
   _rawResponse: string, // raw string response
 }
 
-export function createBaseClient (config: Config) /*: Portal*/ {
+export function createBaseClient (config: Config): Portal {
   const client = new Client()
 
-  // const portal: Portal = {
-  //   _client: client,
-  // }
+  const portal: Portal = {
+    _client: client,
+  }
 
-  // return portal
-  return client
+  return portal
 }
+
+export { Client } from './client'
+export { MethodSpec } from './method'
 
 export default createBaseClient

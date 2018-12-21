@@ -1,5 +1,9 @@
 import Client from '../src/client'
 
 describe('Client', () => {
-  // TODO:
+  let client
+
+  before(() => {
+    client = new Client()
+  })
 })

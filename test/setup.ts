@@ -7,3 +7,7 @@ chai.use(chaiAsPromised)
 
 global.chai = chai
 global.expect = chai.expect
+
+console.log('**************')
+console.log('* SETUP DONE *')
+console.log('**************')
