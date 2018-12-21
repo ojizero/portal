@@ -1,0 +1,4 @@
+--require ts-node/register
+--require ./test/setup.ts
+--timeout 30000
+test/**/*.spec.ts

@@ -1,0 +1,3 @@
+describe('Resource', () => {
+  // TODO:
+})
