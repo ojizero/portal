@@ -1,0 +1,17 @@
+{
+  "name": "@ojizero/portal",
+  "version": "1.0.0",
+  "description": "HTTP API clients ... simplified.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ojizero/portal.git"
+  },
+  "author": "Ameer A.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ojizero/portal/issues"
+  },
+  "homepage": "https://github.com/ojizero/portal#readme"
+}
