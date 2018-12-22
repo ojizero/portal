@@ -1,59 +1,190 @@
 /// <reference path='typings/globals.d.ts' />
 
-import method from '../src/method'
+import method, { MethodSpec } from '../src/method'
 
 import { Client } from '../src/client'
-import { MockClient } from './mocks/client'
+import Joi from 'joi'
 
-const mockMethodSpec = {}
+const mockGetMethodNoParams: MethodSpec = {
+  path: '/mock-path',
+  accept: 'mock/type',
+  contentType: 'mock/type',
+}
 
-describe('Method', () => {
-  let mockClient: Client
+const mockGetMethodWithParams: MethodSpec = {
+  path: '/mock-path/:param',
+  accept: 'mock/type',
+  contentType: 'mock/type',
+}
+
+const mockPostMethodNoParams: MethodSpec = {
+  path: '/mock-path',
+  method: 'POST',
+  body: Joi.object({
+    some: Joi.object({ mock: Joi.string().required() }).required()
+  }).required(),
+  accept: 'mock/type',
+  contentType: 'mock/type',
+}
+
+const mockPostMethodWithParams: MethodSpec = {
+  path: '/mock-path/:param',
+  method: 'POST',
+  // TODO: specify body spec
+  accept: 'mock/type',
+  contentType: 'mock/type',
+}
+
+const mockGetMethodWithQueryString: MethodSpec = {
+  path: '/mock-path/:param',
+  accept: 'mock/type',
+  contentType: 'mock/type',
+  queryString: {
+    some_arg: Joi.string().required()
+  }
+}
+
+describe('Method', async () => {
+  let client: Client
   let methodGenerator
   let methodFunction
 
   before(() => {
-    mockClient = new MockClient()
+    client = { request (method, path, options) {} }
   })
 
-  it('accepts client and returns generator function', () => {
-    methodGenerator = method(mockClient)
+  it('accepts client and returns generator function', async () => {
+    methodGenerator = method(client)
 
-    expect(true).to.deep.equal(true)
-    // expect(methodFunction).to.be.a.function() // TODO:
+    expect(methodGenerator).to.be.a('function')
   })
 
   it('accepts a method specification and returns a method function', () =>{
-    methodFunction = methodGenerator(mockMethodSpec)
+    methodFunction = methodGenerator(mockGetMethodNoParams)
 
-    // expect(methodFunction).to.be.a.function() // TODO:
+    expect(methodFunction).to.be.a('function')
   })
 
-  describe('Method function', () => {
-    it('calls underlying request on client', () => {
-      methodFunction()
-
-      // expect(someSpy).to.be.called.once.with.exaclty() // TODO:
+  describe('Generated method function', async () => {
+    beforeEach(() => {
+      client = { request: sinon.spy() }
+      methodGenerator = method(client)
     })
 
-    it('requires path parameters if specified', () => {
-      // methodFunction = undefined
-      // methodFunction() // should throw
+    it('calls underlying request on client', async () => {
+      methodFunction = methodGenerator(mockGetMethodNoParams)
+
+      await methodFunction()
+
+      expect(client.request)
+        .to.have.been.calledOnceWithExactly(
+          'GET',
+          '/mock-path',
+          undefined,
+          {
+            headers: {
+              'Accept': mockGetMethodNoParams.accept,
+              'Content-Type': mockGetMethodNoParams.contentType,
+            }
+          }
+        )
     })
 
-    it('passes path parameters if specified', () => {
-      // methodFunction = undefined
-      // methodFunction(1) // should not throw
+    it('requires path parameters if specified', async () => {
+      methodFunction = methodGenerator(mockGetMethodWithParams)
+
+      return expect(methodFunction()).to.eventually.be.rejected
     })
 
-    it('requires body arguments if specified', () => {
-      // methodFunction = undefined
-      // methodFunction() // should throw
+    it('passes path parameters if specified', async () => {
+      methodFunction = methodGenerator(mockGetMethodWithParams)
+
+      await methodFunction(10)
+
+      expect(client.request)
+        .to.have.been.calledOnceWithExactly(
+          'GET',
+          '/mock-path/10',
+          undefined,
+          {
+            headers: {
+              'Accept': mockGetMethodNoParams.accept,
+              'Content-Type': mockGetMethodNoParams.contentType,
+            }
+          }
+        )
     })
 
-    it('passes body arguments if specified', () => {
-      // methodFunction = undefined
-      // methodFunction({ some: 'payload' })
+    it('requires body arguments if specified', async () => {
+      methodFunction = methodGenerator(mockPostMethodNoParams)
+
+      return expect(methodFunction()).to.eventually.be.rejected
+    })
+
+    it('passes body arguments if specified', async () => {
+      methodFunction = methodGenerator(mockPostMethodNoParams)
+      const payload = { some: { mock: 'payload '} }
+
+      await methodFunction(payload)
+
+      expect(client.request)
+        .to.have.been.calledOnceWithExactly(
+          'POST',
+          '/mock-path',
+          payload,
+          {
+            headers: {
+              'Accept': mockGetMethodNoParams.accept,
+              'Content-Type': mockGetMethodNoParams.contentType,
+            }
+          }
+        )
+    })
+
+    it('passes positional parameter and body arguments if specified', async () => {
+      methodFunction = methodGenerator(mockPostMethodWithParams)
+      const payload = { some: { mock: 'payload '} }
+
+      await methodFunction(10, payload)
+
+      expect(client.request)
+        .to.have.been.calledOnceWithExactly(
+          'POST',
+          '/mock-path/10',
+          payload,
+          {
+            headers: {
+              'Accept': mockGetMethodNoParams.accept,
+              'Content-Type': mockGetMethodNoParams.contentType,
+            }
+          }
+        )
+    })
+
+    it('requires query string arguments if specified', async () => {
+      methodFunction = methodGenerator(mockGetMethodWithQueryString)
+
+      return expect(methodFunction()).to.eventually.be.rejected
+    })
+
+    it('passes query string arguments if specified', async () => {
+      methodFunction = methodGenerator(mockGetMethodWithQueryString)
+      const query = { some_arg: 'a-string' }
+
+      await methodFunction(10, query)
+
+      expect(client.request)
+        .to.have.been.calledOnceWithExactly(
+          'GET',
+          '/mock-path/10?some_arg=a-string',
+          undefined,
+          {
+            headers: {
+              'Accept': mockGetMethodNoParams.accept,
+              'Content-Type': mockGetMethodNoParams.contentType,
+            }
+          }
+        )
     })
   })
 })

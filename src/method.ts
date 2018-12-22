@@ -1,12 +1,16 @@
 import { Client } from './client'
 
+import defaults from 'lodash.defaultsdeep'
+import { ValdiationSpec, ensureValidData, Validator } from './validation';
+
 const applicationJson = 'application/json'
 
 export interface MethodSpec {
   path: string,
   method?: string,
-  body?: {},
-  queryString?: {},
+  params?: ValdiationSpec,
+  body?: ValdiationSpec,
+  queryString?: ValdiationSpec,
   contentType?: string,
   accept?: string,
   strict?: boolean,
@@ -17,23 +21,71 @@ export function method (client: Client) {
     const {
       path,
       method = 'GET',
-      body = {},
-      queryString = {},
+      params = undefined,
+      body = undefined,
+      queryString = undefined,
       contentType = applicationJson,
       accept = applicationJson,
-      strict = true
     } = spec
 
-    // It's ok for args here to be of implicit type any[]
-    // @ts-ignore
-    return function (...args) {
-      // TODO: replace path params with args
-      // TODO: reject if args doesn't match path params if strict
+    const defaultOptions = {
+      headers: {
+        'Accept': accept,
+        'Content-Type': contentType,
+      }
+    }
 
-      // TODO: last argument is allowed to be object, JSON payload
-      // TODO: reject if body doesn't match body spec if strict
+    return async function (...args: any[]) {
+      let length = args.length
 
-      return client.request(method, path, {})
+      let query
+      let payload
+      let options
+
+      if (typeof args[length - 1] === 'object') {
+        options = args[length - 1]
+        args = args.slice(0, length - 1)
+        length -= 1
+      }
+
+      if (typeof args[length - 1] === 'object') {
+        payload = args[length - 1]
+        args = args.slice(0, length - 1)
+        length -= 1
+      } else if (typeof options !== 'undefined') {
+        payload = options
+        options = undefined
+      }
+
+      if (typeof queryString !== 'undefined' && typeof args[length - 1] === 'object') {
+        query = args[length - 1]
+        args = args.slice(0, length - 1)
+        length -= 1
+      } else if (typeof queryString !== 'undefined' && typeof payload !== 'undefined') {
+        query = payload
+        payload = undefined
+      }
+
+      ensureValidData(params, args)
+      ensureValidData(body, payload)
+      ensureValidData(queryString, query)
+
+      let paramsCount = (path.match(/:[^\/]*/) || []).length
+
+      const fullPath = args.reduce((acc, arg) => {
+        paramsCount -= 1
+
+        return acc.replace(/:[^\/]*/, arg)
+      }, path)
+
+      if (paramsCount !== 0) throw new Error('TODO: give me a meangingful error')
+
+      // TODO: add query
+
+      options = defaults({}, defaultOptions, options)
+
+
+      return client.request(method, fullPath, payload, options)
     }
   }
 }

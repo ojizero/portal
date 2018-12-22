@@ -23,16 +23,26 @@
     "url": "https://github.com/ojizero/portal/issues"
   },
   "homepage": "https://github.com/ojizero/portal#readme",
+  "dependencies": {
+    "joi": "^14.3.0",
+    "lodash.defaultsdeep": "^4.6.0"
+  },
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",
     "@types/expect": "^1.20.3",
+    "@types/joi": "^14.0.1",
+    "@types/lodash.defaultsdeep": "^4.6.4",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.18",
+    "@types/sinon": "^7.0.2",
+    "@types/sinon-chai": "^3.2.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
+    "sinon": "^7.2.2",
+    "sinon-chai": "^3.3.0",
     "ts-node": "^7.0.1",
     "typescript": "^3.2.2"
   }
