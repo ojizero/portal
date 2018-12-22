@@ -8,7 +8,7 @@ function isCustomValidator (spec: any): spec is Validator {
   return !!spec && !spec.isJoi && 'validate' in spec
 }
 
-export function ensureValidData (spec: SchemaLike | Validator | undefined, data: any[]) {
+export function ensureValidData (spec: SchemaLike | Validator | undefined, data: any) {
   if (!spec) return
 
   if (isCustomValidator(spec)) {
