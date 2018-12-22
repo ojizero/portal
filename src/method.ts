@@ -1,4 +1,4 @@
-import { Client } from './client'
+import { Client, Response } from './client'
 
 import defaults from 'lodash.defaultsdeep'
 import {
@@ -21,7 +21,7 @@ export interface MethodSpec {
   // strict?: boolean,
 }
 
-export type RouteFunction = (...args: any[]) => Promise<any>
+export type RouteFunction = (...args: any[]) => Promise<Response>
 export type MethodFactory = (spec: MethodSpec) => RouteFunction
 
 export function method (client: Client): MethodFactory {
@@ -43,7 +43,7 @@ export function method (client: Client): MethodFactory {
       }
     }
 
-    return async function (...args: any[]): Promise<any> {
+    return async function (...args: any[]): Promise<Response> {
       let length = args.length
 
       let query

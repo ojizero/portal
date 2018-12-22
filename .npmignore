@@ -1,1 +1,4 @@
-# TODO:
+./src
+./test
+./examples
+./tsconfig*.json

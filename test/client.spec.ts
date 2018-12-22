@@ -4,6 +4,6 @@ describe('Client', () => {
   let client
 
   before(() => {
-    client = new Client()
+    // client = new Client()
   })
 })
