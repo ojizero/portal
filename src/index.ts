@@ -4,6 +4,8 @@ import method, { MethodFactory } from './method'
 import resrouceGenerator, { ResourceFactory } from './resource'
 
 import { URL } from 'url' // TODO: declare it instead of importing it
+import got from 'got'
+import { OutgoingHttpHeaders } from 'http'
 
 export enum AuthenticationTypes {
   BasicAuth = 'basic',
@@ -16,15 +18,13 @@ export type Seconds = number
 
 export type BaseUrl = string | URL
 
-export interface Headers {}
-
 export interface Authentication {
   type: AuthenticationTypes,
 }
 
 export interface Config {
   baseUrl: BaseUrl,
-  headers?: Headers,
+  headers?: OutgoingHttpHeaders,
   authentication?: Authentication,
   retries?: number,
   timeout?: Seconds,
@@ -37,18 +37,8 @@ export interface Portal {
   _client: Client,
 }
 
-export interface Response {
-  status: {
-    code: number,
-    word: string,
-  },
-  body: Object | undefined,
-  headers: Headers,
-  _rawResponse: string, // raw string response
-}
-
 export function createBaseClient (config: Config): Portal {
-  const client = new Client() // TODO:
+  const client = new Client(got) // TODO:
 
   const portal: Portal = {
     route: method(client),

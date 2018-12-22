@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/ojizero/portal#readme",
   "dependencies": {
+    "got": "^9.5.0",
     "joi": "^14.3.0",
     "lodash.defaultsdeep": "^4.6.0"
   },
@@ -31,6 +32,7 @@
     "@types/chai": "^4.1.7",
     "@types/chai-as-promised": "^7.1.0",
     "@types/expect": "^1.20.3",
+    "@types/got": "^9.2.2",
     "@types/joi": "^14.0.1",
     "@types/lodash.defaultsdeep": "^4.6.4",
     "@types/mocha": "^5.2.5",
