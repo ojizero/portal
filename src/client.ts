@@ -1,5 +1,5 @@
 export interface Client {
-  request (method: string, path: string, payload: {}, options: any): void // TODO:
+  request (method: string, path: string, payload: {}, options: any): Promise<any> // TODO:
 }
 
 export class PortalClient implements Client {
@@ -7,8 +7,8 @@ export class PortalClient implements Client {
     // TODO:
   }
 
-  request (method: string, path: string, payload: {}, options: any) {
-    // TODO:
+  request (method: string, path: string, payload: {}, options: any): Promise<any> {
+    return Promise.resolve() // TODO:
   }
 }
 

@@ -1,7 +1,7 @@
 import Client from './client'
 
-// import method from './method'
-// import Resource from './resource'
+import method, { MethodFactory } from './method'
+import resrouceGenerator, { ResourceFactory } from './resource'
 
 import { URL } from 'url' // TODO: declare it instead of importing it
 
@@ -32,8 +32,8 @@ export interface Config {
 }
 
 export interface Portal {
-  // route: method, // TODO: function taking some spec
-  // resource: Resource, // TODO: function taking some spec
+  route: MethodFactory,
+  resource: ResourceFactory,
   _client: Client,
 }
 
@@ -48,9 +48,11 @@ export interface Response {
 }
 
 export function createBaseClient (config: Config): Portal {
-  const client = new Client()
+  const client = new Client() // TODO:
 
   const portal: Portal = {
+    route: method(client),
+    resource: resrouceGenerator(client),
     _client: client,
   }
 

@@ -24,6 +24,9 @@ const defaultBaseSpecs: { [k: string]: MethodSpec } = {
   },
 }
 
+export type ResourceFactory =
+  (baseRoute: string, enabledRoutes?: string[], extraMethods?: { [k:string]: any }) => Resource
+
 export class Resource {
   client: Client
   baseRoute: string
@@ -115,7 +118,7 @@ export class Resource {
   }
 }
 
-export default function resrouceGenerator (client: Client) {
+export default function resrouceGenerator (client: Client): ResourceFactory {
   return function (baseRoute: string, enabledRoutes?: string[], extraMethods?: { [k:string]: any }): Resource {
     return new Resource(client, baseRoute, enabledRoutes, extraMethods)
   }

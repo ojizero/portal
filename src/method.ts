@@ -21,8 +21,11 @@ export interface MethodSpec {
   // strict?: boolean,
 }
 
-export function method (client: Client) {
-  return function methodGenerator (spec: MethodSpec) {
+export type RouteFunction = (...args: any[]) => Promise<any>
+export type MethodFactory = (spec: MethodSpec) => RouteFunction
+
+export function method (client: Client): MethodFactory {
+  return function methodGenerator (spec: MethodSpec): RouteFunction {
     const {
       path,
       method = 'GET',
@@ -40,7 +43,7 @@ export function method (client: Client) {
       }
     }
 
-    return async function (...args: any[]) {
+    return async function (...args: any[]): Promise<any> {
       let length = args.length
 
       let query
