@@ -1,7 +1,12 @@
 import { Client } from './client'
 
 import defaults from 'lodash.defaultsdeep'
-import { ValdiationSpec, ensureValidData, Validator } from './validation';
+import {
+  parse as parseQuery,
+  stringify as stringifyQuery,
+} from 'querystring'
+
+import { ValdiationSpec, ensureValidData } from './validation';
 
 const applicationJson = 'application/json'
 
@@ -13,7 +18,7 @@ export interface MethodSpec {
   queryString?: ValdiationSpec,
   contentType?: string,
   accept?: string,
-  strict?: boolean,
+  // strict?: boolean,
 }
 
 export function method (client: Client) {
@@ -72,7 +77,7 @@ export function method (client: Client) {
 
       let paramsCount = (path.match(/:[^\/]*/) || []).length
 
-      const fullPath = args.reduce((acc, arg) => {
+      let fullPath: string = args.reduce((acc, arg) => {
         paramsCount -= 1
 
         return acc.replace(/:[^\/]*/, arg)
@@ -80,10 +85,20 @@ export function method (client: Client) {
 
       if (paramsCount !== 0) throw new Error('TODO: give me a meangingful error')
 
-      // TODO: add query
+      if (query) {
+        let attachedQuery
+        [ fullPath, attachedQuery ] = fullPath.split('?', 2)
+
+        query = {
+          ...query,
+          ...parseQuery(attachedQuery),
+        }
+
+        query = stringifyQuery(query)
+        fullPath = `${fullPath}?${query}`
+      }
 
       options = defaults({}, defaultOptions, options)
-
 
       return client.request(method, fullPath, payload, options)
     }

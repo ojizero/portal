@@ -1,6 +1,9 @@
 import Client from './client'
+
 // import method from './method'
-import Resource from './resource'
+// import Resource from './resource'
+
+import { URL } from 'url' // TODO: declare it instead of importing it
 
 export enum AuthenticationTypes {
   BasicAuth = 'basic',
@@ -25,6 +28,7 @@ export interface Config {
   authentication?: Authentication,
   retries?: number,
   timeout?: Seconds,
+  onError?: 'reject' | 'resolve',
 }
 
 export interface Portal {
