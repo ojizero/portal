@@ -3,9 +3,10 @@ import querystring from 'querystring'
 import { IncomingHttpHeaders } from 'http';
 import { OutgoingHttpHeaders } from 'http'
 import defaultsDeep from 'lodash.defaultsdeep'
-import { RequestOptions } from 'https';
+import { RequestOptions as HttpsRequestOptions } from 'https';
 
 export enum AuthenticationTypes {
+  None = 'none',
   BasicAuth = 'basic',
   // TokenAuth = 'token',
   // ApiKeyAuth = 'key',
@@ -30,6 +31,13 @@ interface AuthSpec {
 
 export type Seconds = number
 
+export interface RawResponse {
+  body: any,
+  statusCode?: number,
+  statusMessage?: string,
+  headers: IncomingHttpHeaders,
+}
+
 export interface Response {
   status: {
     code?: number,
@@ -37,7 +45,17 @@ export interface Response {
   },
   body: any,
   headers: IncomingHttpHeaders,
-  _rawResponse: got.Response<any>, // raw string response
+  _rawResponse: RawResponse,
+}
+
+// Add compatibility with Got type
+export interface RequestOptions extends HttpsRequestOptions {
+  baseUrl: string,
+  url: string,
+  json: boolean,
+  body: string,
+  retries?: number,
+  throwHttpErrors: boolean,
 }
 
 export interface Config {
@@ -46,16 +64,14 @@ export interface Config {
   // port?: number,
   headers?: OutgoingHttpHeaders,
   authentication?: Authentication,
-  retries?: number,
-  timeout?: Seconds,
+  retries?: number, // available from RequestOptions
+  timeout?: Seconds, // available from HttpsRequestOptions
   onError?: 'reject' | 'resolve',
 }
 
-export type RawResponse = got.Response<any>
-
 export type ClientFn = (options: RequestOptions) => Promise<RawResponse>
 
-// export type RequestOptions = Config & RequestConfig // TODO:
+export interface RequestConfig extends RequestOptions, Config {}
 
 export interface Client {
   request (method: string, path: string, payload: {}, options: any): Promise<Response>
@@ -70,23 +86,15 @@ export class PortalClient implements Client {
     this.config = config
   }
 
-  async request (method: string, path: string, payload: {}, options: any): Promise<Response> {
+  async request (method: string, path: string, payload: {}, options: RequestConfig): Promise<Response> {
     const requestOptions = this.constructRequestOptions(method, path, payload, options)
 
     const response = await this.client(requestOptions)
 
-    return {
-      status: {
-        code: response.statusCode,
-        word: response.statusMessage,
-      },
-      body: response.body, // TODO: should it be parsed if needed ?
-      headers: response.headers,
-      _rawResponse: response,
-    }
+    return this.transformResponse(response)
   }
 
-  constructRequestOptions (method: string, path: string, payload: { [k: string]: any }, options: any): { [s: string]: any } {
+  constructRequestOptions (method: string, path: string, payload: { [k: string]: any }, options: RequestConfig): RequestOptions {
     const {
       baseUrl,
       headers,
@@ -98,7 +106,7 @@ export class PortalClient implements Client {
       // port: 443,
       retries: 0,
       headers: {},
-      timeout: 30_000,
+      timeout: 30,
       onError: 'reject',
       // protocol: 'https',
     }, this.config, options)
@@ -143,6 +151,15 @@ export class PortalClient implements Client {
 
   setupAuthentication (auth: Authentication): AuthSpec {
     switch (auth.type) {
+      case AuthenticationTypes.None: {
+        return {
+          useHeader: false,
+          usePayload: false,
+          useQueryString: false,
+          key: '',
+          value: '',
+        }
+      }
       case AuthenticationTypes.BasicAuth: {
         const token = Buffer.from(`${auth.username}:${auth.password}`).toString('base64')
 
@@ -156,7 +173,6 @@ export class PortalClient implements Client {
       }
 
       case AuthenticationTypes.BearerAuth: {
-
         return {
           useHeader: true,
           usePayload: false,
@@ -168,6 +184,18 @@ export class PortalClient implements Client {
     }
 
     throw new Error('TODO: givem me a meangingful error')
+  }
+
+  transformResponse(response: RawResponse): Response {
+    return {
+      status: {
+        code: response.statusCode,
+        word: response.statusMessage,
+      },
+      body: response.body, // TODO: should it be parsed if needed ?
+      headers: response.headers,
+      _rawResponse: response,
+    }
   }
 }
 

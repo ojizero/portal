@@ -50,7 +50,7 @@ describe('Method', async () => {
   let methodFunction
 
   before(() => {
-    client = { request (method, path, options) { return Promise.resolve() } }
+    client = { request: sinon.spy() }
   })
 
   it('accepts client and returns generator function', async () => {

@@ -28,13 +28,15 @@ export function method (client: Client): MethodFactory {
   return function methodGenerator (spec: MethodSpec): RouteFunction {
     const {
       path,
-      method = 'GET',
+      method: _method = 'GET',
       params = undefined,
       body = undefined,
       queryString = undefined,
       contentType = applicationJson,
       accept = applicationJson,
     } = spec
+
+    const method = _method.toUpperCase()
 
     const defaultOptions = {
       headers: {
@@ -60,15 +62,26 @@ export function method (client: Client): MethodFactory {
         payload = args[length - 1]
         args = args.slice(0, length - 1)
         length -= 1
-      } else if (typeof options !== 'undefined') {
-        payload = options
-        options = undefined
+      } else if (
+        // TODO: ??? does this make sense ?
+        (typeof body !== 'undefined' || method === 'POST' || method === 'PUT')
+        && typeof options !== 'undefined'
+      ) {
+        const optionsHasPayload = 'payload' in options
+
+        payload = optionsHasPayload ? options.payload : options
+        options = optionsHasPayload ? options : undefined
       }
 
-      if (typeof queryString !== 'undefined' && typeof args[length - 1] === 'object') {
+      if (typeof args[length - 1] === 'object') {
         query = args[length - 1]
         args = args.slice(0, length - 1)
         length -= 1
+      } else if (typeof queryString !== 'undefined' && typeof options !== 'undefined') {
+        const optionsHasQueryString = 'queryString' in options
+
+        query = optionsHasQueryString ? options.queryString : options
+        options = optionsHasQueryString ? options : undefined
       } else if (typeof queryString !== 'undefined' && typeof payload !== 'undefined') {
         query = payload
         payload = undefined
