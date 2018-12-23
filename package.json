@@ -2,7 +2,7 @@
   "name": "@ojizero/portal",
   "version": "1.0.0-alpha.0",
   "description": "HTTP API clients ... simplified.",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
   "publishConfig": {
     "access": "public"
   },

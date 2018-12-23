@@ -11,7 +11,7 @@ export interface Portal {
   _client: Client,
 }
 
-export function createBaseClient (config: Config): Portal {
+export function createPortalClient (config: Config): Portal {
   const client = new PortalClient(got, config)
 
   const portal: Portal = {
@@ -26,4 +26,9 @@ export function createBaseClient (config: Config): Portal {
 export { Client } from './client'
 export { MethodSpec } from './method'
 
-export default createBaseClient
+// Can't a the moment run export { * as Joi } from 'joi'
+// so this clumsy way is the solution re-export
+import * as Joi from 'joi'
+export { Joi }
+
+export default createPortalClient

@@ -1,13 +1,14 @@
-import got, { GotFn } from 'got'
+import got from 'got'
 import querystring from 'querystring'
 import { IncomingHttpHeaders } from 'http';
 import { OutgoingHttpHeaders } from 'http'
 import defaultsDeep from 'lodash.defaultsdeep'
+import { RequestOptions } from 'https';
 
 export enum AuthenticationTypes {
   BasicAuth = 'basic',
-  TokenAuth = 'token',
-  ApiKeyAuth = 'key',
+  // TokenAuth = 'token',
+  // ApiKeyAuth = 'key',
   BearerAuth = 'bearer',
 }
 
@@ -50,15 +51,21 @@ export interface Config {
   onError?: 'reject' | 'resolve',
 }
 
+export type RawResponse = got.Response<any>
+
+export type ClientFn = (options: RequestOptions) => Promise<RawResponse>
+
+// export type RequestOptions = Config & RequestConfig // TODO:
+
 export interface Client {
   request (method: string, path: string, payload: {}, options: any): Promise<Response>
 }
 
 export class PortalClient implements Client {
-  client: GotFn
+  client: ClientFn
   config: Config
 
-  constructor (client: GotFn, config: Config) {
+  constructor (client: ClientFn, config: Config) {
     this.client = client
     this.config = config
   }
