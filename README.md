@@ -23,20 +23,29 @@ import portal from '@ojizero/portal'
 const client = portal({ baseUrl: 'some.base.url' }) // Initial configuration can be passed here
 
 // Get method without path variables
-client.route('someGetMethod', { path: '/some/path' })
-
+export const someGetMethod = client.route({ path: '/some/path' })
 // Get method with path variables
-client.route('someGetMethodWithParam', { path: '/some/path/:withInnerVariable' })
+export const someGetMethodWithParam = client.route({ path: '/some/path/:withInnerVariable' })
 
-export default client
+/// NOTE: ideally this wouldn't be a module level instance but this is to simplify this example 😬
 
 /* ******************* */
 
 /// In your application
-import YourClient from 'your-client-module'
+import YourAPIClient from 'your-client-module'
 
-const client = YourClient() // You can also pass additional options to futher configure the client
-
-const someGetMethodPromise = client.someGetMethod() // GET http://some.base.url/some/path
-const someGetMethodWithParamPromise = client.someGetMethodWithParam(5) // GET http://some.base.url/some/path/5
+const someGetMethodPromise = YourAPIClient.someGetMethod() // GET http://some.base.url/some/path
+const someGetMethodWithParamPromise = YourAPIClient.someGetMethodWithParam(5) // GET http://some.base.url/some/path/5
 ```
+
+## Documentation
+
+
+
+## Status
+
+This is still a work in progress :D any help is appreciated
+
+## License
+
+[MIT licensed](LICENSE).
