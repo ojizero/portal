@@ -11,7 +11,8 @@
     "start": "npm test -- --watch --recursive",
     "test": "TS_NODE_PROJECT=./tsconfig.spec.json mocha",
     "clean": "rm -rf lib",
-    "build": "tsc"
+    "build": "tsc",
+    "repl": "ts-node"
   },
   "repository": {
     "type": "git",

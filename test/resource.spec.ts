@@ -4,8 +4,8 @@ import resourceGenerator from '../src/resource'
 
 describe('Resource', () => {
   let client
-  let resourceFactory
   let resource
+  let resourceFactory
 
   before (() => {
     resourceFactory = resourceGenerator(client)
@@ -15,7 +15,7 @@ describe('Resource', () => {
     it('exposes basic CRUD API', () => {
       client = { request: sinon.spy() }
 
-      resource = resourceFactory('/mock-base')
+      resource = resourceFactory({ baseRoute: '/mock-base' })
 
       expect(resource)
         .to.include.all.keys('list', 'get', 'edit', 'del')
@@ -26,7 +26,7 @@ describe('Resource', () => {
 
       resourceFactory = resourceGenerator(client)
 
-      resource = resourceFactory('/mock-base', undefined, { extraMethod: () => {} })
+      resource = resourceFactory({ baseRoute: '/mock-base', extraMethods: { extraMethod: { path: '/some-path' } } })
 
       expect(resource)
         .to.include.all.keys('list', 'get', 'edit', 'del', 'extraMethod')
@@ -37,7 +37,7 @@ describe('Resource', () => {
 
       resourceFactory = resourceGenerator(client)
 
-      resource = resourceFactory('/mock-base', ['list', 'get'])
+      resource = resourceFactory({ baseRoute: '/mock-base', enabledMethods: ['list', 'get']})
 
       expect(resource)
         .to.include.all.keys('list', 'get')

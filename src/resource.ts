@@ -1,5 +1,5 @@
 import { Client } from './client'
-import method, { MethodSpec } from './method'
+import method, { MethodSpec, MethodFactory } from './method'
 
 const defaultBaseSpecs: { [k: string]: MethodSpec } = {
   list: {
@@ -24,33 +24,33 @@ const defaultBaseSpecs: { [k: string]: MethodSpec } = {
   },
 }
 
-export type ResourceFactory =
-  (baseRoute: string, enabledRoutes?: string[], extraMethods?: { [k:string]: any }) => Resource
+export interface ResourceConfig {
+  baseRoute: string,
+  enabledRoutes?: string[],
+  extraMethods?: { [k:string]: MethodSpec },
+}
+
+export type ResourceFactory = (config: ResourceConfig) => Resource
 
 export class Resource {
   client: Client
   baseRoute: string
   enabledRoutes: string[]
-  methodFactory: any
+  methodFactory: MethodFactory
 
-  constructor (
-    client: Client,
-    baseRoute: string,
-    enabledRoutes?: string[],
-    extraMethods?: { [k: string]: any },
-  ) {
+  constructor (client: Client, config: ResourceConfig) {
+    const {
+      baseRoute,
+      extraMethods = {},
+      enabledRoutes = Object.keys(defaultBaseSpecs),
+    } = config
+
     this.client = client
     this.baseRoute = baseRoute.trim()
 
     if (this.baseRoute.endsWith('/')) this.baseRoute = this.baseRoute.slice(0, -1)
 
-    this.enabledRoutes = enabledRoutes || [
-      'list',
-      'get',
-      'edit',
-      'add',
-      'del',
-    ]
+    this.enabledRoutes = enabledRoutes
 
     this.methodFactory = this.generateMethodFactory()
 
@@ -108,7 +108,10 @@ export class Resource {
     if (!extraMethods) return
 
     Object.entries(extraMethods)
-      .forEach(([method, fn]) => {
+      .forEach(([method, spec]) => {
+        // TODO: should it be prefixed by basePath ?
+        const fn = this.methodFactory(spec)
+
         Object.defineProperty(this, method, {
           value: fn,
           writable: false,
@@ -119,7 +122,7 @@ export class Resource {
 }
 
 export default function resrouceGenerator (client: Client): ResourceFactory {
-  return function (baseRoute: string, enabledRoutes?: string[], extraMethods?: { [k:string]: any }): Resource {
-    return new Resource(client, baseRoute, enabledRoutes, extraMethods)
+  return function (config: ResourceConfig): Resource {
+    return new Resource(client, config)
   }
 }
