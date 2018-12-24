@@ -66,7 +66,7 @@ Type: `Authentication`
 
 ###### Authentication
 
-####### type
+**type**
 
 Type: `AuthenticationTypes` (required)
 
@@ -81,19 +81,19 @@ Valid `AuthenticationTypes` are:
   - Use `authToken` as is.
   - Token is added to the `Authorization` header prepended with `bearer`.
 
-####### username
+**username**
 
 Type: `string`
 
 Required if using `BasicAuth` type.
 
-####### password
+**password**
 
 Type: `string`
 
 Required if using `BasicAuth` type.
 
-####### authToken
+**authToken**
 
 Type: `string`
 
