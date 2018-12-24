@@ -50,16 +50,17 @@ export interface Response {
 
 // Add compatibility with Got type
 export interface RequestOptions extends HttpsRequestOptions {
-  baseUrl: string,
-  url: string,
-  json: boolean,
-  body: string,
+  baseUrl?: string,
+  url?: string,
+  json?: boolean,
+  body?: string,
   retries?: number,
-  throwHttpErrors: boolean,
+  throwHttpErrors?: boolean,
+  headers?: OutgoingHttpHeaders,
 }
 
 export interface Config {
-  baseUrl: string,
+  baseUrl?: string, // TODO: this shouldn't be optional but i can construct RequestConfig unless i set it as optional
   // protocol?: 'http' | 'https',
   // port?: number,
   headers?: OutgoingHttpHeaders,
@@ -72,16 +73,20 @@ export interface Config {
 export type ClientFn = (options: RequestOptions) => Promise<RawResponse>
 
 export interface RequestConfig extends RequestOptions, Config {}
+// export type RequestConfig = Config
 
 export interface Client {
   request (method: string, path: string, payload: {}, options: any): Promise<Response>
 }
 
 export class PortalClient implements Client {
-  client: ClientFn
   config: Config
+  client: ClientFn
 
   constructor (client: ClientFn, config: Config) {
+    // TODO: this shouldn't exists but i had to set baseUrl as otpional to construc the RequestConfig type
+    if (typeof config.baseUrl === 'undefined') throw Error('TODO: givem em a meaningful message')
+
     this.client = client
     this.config = config
   }

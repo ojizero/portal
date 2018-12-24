@@ -1,4 +1,4 @@
-import { Client, Response } from './client'
+import { Client, Response, RequestConfig } from './client'
 
 import defaults from 'lodash.defaultsdeep'
 import {
@@ -38,7 +38,7 @@ export function method (client: Client): MethodFactory {
 
     const method = _method.toUpperCase()
 
-    const defaultOptions = {
+    const defaultOptions: RequestConfig = {
       headers: {
         'Accept': accept,
         'Content-Type': contentType,

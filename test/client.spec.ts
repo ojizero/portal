@@ -49,11 +49,39 @@ describe('Client', () => {
     })
 
     it('transforms request parameters with all defaults', () => {
-      //
+      const requestOptions = client.constructRequestOptions('GET', '/some-path', {}, {})
+
+      expect(requestOptions).to.deep.equal({
+        baseUrl: "https://dummy.domain",
+        body: "{}",
+        headers: {},
+        json: false,
+        method: "GET",
+        retries: 0,
+        throwHttpErrors: true,
+        timeout: 30000,
+        url: "/some-path",
+      })
     })
 
     it('adds additional headers from options', () => {
-      //
+      const requestOptions = client.constructRequestOptions('GET', '/some-path', {}, {
+        headers: {
+          some: 'mock'
+        }
+      })
+
+      expect(requestOptions).to.deep.equal({
+        baseUrl: "https://dummy.domain",
+        body: "{}",
+        headers: { some: 'mock' },
+        json: false,
+        method: "GET",
+        retries: 0,
+        throwHttpErrors: true,
+        timeout: 30000,
+        url: "/some-path",
+      })
     })
 
     describe('Authentication setup', () => {
@@ -63,11 +91,11 @@ describe('Client', () => {
       })
 
       it('adds basic authentication', () => {
-        //
+        // TODO:
       })
 
       it('adds bearer authentication', () => {
-        //
+        // TODO:
       })
     })
   })
