@@ -139,6 +139,19 @@ Which is the underlying client instance used by the factories.
 
 This is still a work in progress :D any help is appreciated
 
+### TODO
+
+- [ ] Finish documentations
+  - [ ] Why?
+  - [ ] More on external API
+- [ ] Support non JSON payload
+- [ ] Get `onError: resolve` to work
+- [ ] Support simplified form for validation
+- [ ] Finalize behvaiour of genreator method functions
+  - [ ] What to do with their arguments (ambiguity of options/payload/querystring in args)
+  - [ ] Support optional path arguments ?
+- [ ] ...
+
 ## License
 
 [MIT licensed](LICENSE).
