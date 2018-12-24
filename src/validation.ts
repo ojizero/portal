@@ -8,7 +8,7 @@ function isCustomValidator (spec: any): spec is Validator {
   return !!spec && !spec.isJoi && 'validate' in spec
 }
 
-export function ensureValidData (spec: SchemaLike | Validator | undefined, data: any) {
+export function ensureValidData (spec: SchemaLike | Validator | undefined, data: any, name?: string) {
   if (!spec) return
 
   if (isCustomValidator(spec)) {
@@ -21,7 +21,7 @@ export function ensureValidData (spec: SchemaLike | Validator | undefined, data:
 
   if (!error) return
 
-  throw new Error('TODO: give me a meangingful error')
+  throw new Error(`${!!name ? name+': ': ''}Provided data {${data}} failed to meat provided spec {${spec}}`)
 }
 
 export { SchemaLike }

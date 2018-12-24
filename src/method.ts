@@ -7,6 +7,7 @@ import {
 } from 'querystring'
 
 import { ValdiationSpec, ensureValidData } from './validation';
+import { OutgoingHttpHeaders } from 'http';
 
 const applicationJson = 'application/json'
 
@@ -19,6 +20,7 @@ export interface MethodSpec {
   contentType?: string,
   accept?: string,
   // strict?: boolean,
+  headers?: OutgoingHttpHeaders,
 }
 
 export type RouteFunction = (...args: any[]) => Promise<Response>
@@ -34,6 +36,7 @@ export function method (client: Client): MethodFactory {
       queryString = undefined,
       contentType = applicationJson,
       accept = applicationJson,
+      headers = {},
     } = spec
 
     const method = _method.toUpperCase()
@@ -42,6 +45,7 @@ export function method (client: Client): MethodFactory {
       headers: {
         'Accept': accept,
         'Content-Type': contentType,
+        ...headers,
       }
     }
 
@@ -87,19 +91,23 @@ export function method (client: Client): MethodFactory {
         payload = undefined
       }
 
-      ensureValidData(params, args)
-      ensureValidData(body, payload)
-      ensureValidData(queryString, query)
+      ensureValidData(params, args, 'Parameters')
+      ensureValidData(body, payload, 'Payload')
+      ensureValidData(queryString, query, 'Query string')
 
-      let paramsCount = (path.match(/:[^\/]*/) || []).length
+      // Regexp here isn global we wanna
+      // match all avaialbel parameters
+      let paramsCount = (path.match(/:[^\/:]+/g) || []).length
 
       let fullPath: string = args.reduce((acc, arg) => {
         paramsCount -= 1
 
-        return acc.replace(/:[^\/]*/, arg)
+        // Regexp here isn't global we wanna
+        // match the first parameter only
+        return acc.replace(/:[^\/:]+/, arg)
       }, path)
 
-      if (paramsCount !== 0) throw new Error('TODO: give me a meangingful error')
+      if (paramsCount !== 0) throw new Error('Number of provided parameters does not macth request path arguments')
 
       if (query) {
         let attachedQuery

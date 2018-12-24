@@ -48,12 +48,20 @@ export interface Response {
   _rawResponse: RawResponse,
 }
 
+export type RequestBodyObject = { [k: string]: any }
+
+export type RequestBody = string | RequestBodyObject // | Array<RequestBodyObject> // TODO: TS is made when i add the array :(
+
+function isObject (body: RequestBody): body is RequestBodyObject {
+  return typeof body === 'object'
+}
+
 // Add compatibility with Got type
 export interface RequestOptions extends HttpsRequestOptions {
   baseUrl?: string,
   url?: string,
   json?: boolean,
-  body?: string,
+  body?: RequestBody,
   retries?: number,
   throwHttpErrors?: boolean,
   headers?: OutgoingHttpHeaders,
@@ -76,7 +84,7 @@ export interface RequestConfig extends RequestOptions, Config {}
 // export type RequestConfig = Config
 
 export interface Client {
-  request (method: string, path: string, payload: {}, options: any): Promise<Response>
+  request (method: string, path: string, payload: RequestBody, options: any): Promise<Response>
 }
 
 export class PortalClient implements Client {
@@ -91,7 +99,7 @@ export class PortalClient implements Client {
     this.config = config
   }
 
-  async request (method: string, path: string, payload: {}, options: RequestConfig): Promise<Response> {
+  async request (method: string, path: string, payload: RequestBody, options: RequestConfig): Promise<Response> {
     const requestOptions = this.constructRequestOptions(method, path, payload, options)
 
     const response = await this.client(requestOptions)
@@ -99,7 +107,7 @@ export class PortalClient implements Client {
     return this.transformResponse(response)
   }
 
-  constructRequestOptions (method: string, path: string, payload: { [k: string]: any }, options: RequestConfig): RequestOptions {
+  constructRequestOptions (method: string, path: string, payload: RequestBody, options: RequestConfig): RequestOptions {
     const {
       baseUrl,
       headers,
@@ -127,7 +135,7 @@ export class PortalClient implements Client {
 
       if (useHeader) {
         headers[key] = value
-      } else if (usePayload) {
+      } else if (usePayload && isObject(payload)) {
         payload[key] = value
       } else if (useQueryString) {
         const [url, queryString = ''] = path.split('?', 2)
@@ -149,8 +157,8 @@ export class PortalClient implements Client {
       retries,
       json: isJson,
       timeout: timeout * 1000,
-      body: JSON.stringify(payload),
       throwHttpErrors: onError !== 'resolve',
+      body: isJson ? payload : JSON.stringify(payload),
     }
   }
 
