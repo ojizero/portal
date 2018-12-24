@@ -38,35 +38,103 @@ const someGetMethodPromise = YourAPIClient.someGetMethod() // GET http://some.ba
 const someGetMethodWithParamPromise = YourAPIClient.someGetMethodWithParam(5) // GET http://some.base.url/some/path/5
 ```
 
-## Documentation
+## API Documentation
 
-### createPortalClient
+### (default export) createPortalClient(config)
 
-(default exported method)
+Used to create a portal base client. Returns a [portal object](####portal-object)
 
-Used to create a portal base client.
+#### config
 
-#### Input
-```
-{
-  baseUrl?: string, // TODO: this shouldn't be optional but i can construct RequestConfig unless i set it as optional
-  // protocol?: 'http' | 'https',
-  // port?: number,
-  headers?: OutgoingHttpHeaders,
-  authentication?: Authentication,
-  retries?: number, // available from RequestOptions
-  timeout?: Seconds, // available from HttpsRequestOptions
-  onError?: 'reject' | 'resolve',
-}
-```
-#### Output
-```
-{
-  route: MethodFactory,
-  resource: ResourceFactory,
-  _client: Client,
-}
-```
+> All config options are required unless otherwise stated.
+
+##### baseUrl
+
+Type: `string` (required).
+
+The base URL used by the client, all related URIs are prepended by it.
+
+##### headers
+
+Type: `OutgoingHttpHeaders`
+
+The default headers to be attached to all requests.
+
+##### authentication
+
+Type: `Authentication`
+
+###### Authentication
+
+####### type
+
+Type: `AuthenticationTypes` (required)
+
+Valid `AuthenticationTypes` are:
+
+- `None` = 'none'
+  - No authentication required. (same as not providing the `authentication` option)
+- `BasicAuth` = 'basic',
+  - Use `username` and `password` to generate a token.
+  - Token is added to the `Authorization` header prepended with `basic`.
+- `BearerAuth` = 'bearer',
+  - Use `authToken` as is.
+  - Token is added to the `Authorization` header prepended with `bearer`.
+
+####### username
+
+Type: `string`
+
+Required if using `BasicAuth` type.
+
+####### password
+
+Type: `string`
+
+Required if using `BasicAuth` type.
+
+####### authToken
+
+Type: `string`
+
+Required if using `BearerAuth` type.
+
+##### retries
+
+Type: `number`
+
+Number of retries to execute on failures, default is `0`.
+
+##### timeout
+
+Type: `number`
+
+Request timeout in seconds, default is `30`
+
+##### onError
+
+Type: `'reject'` | `'resolve'`
+
+> TODO: I think it's not working currently 🤔
+
+If set to `resolve` error won't throw, instead will return a normal response, default is `reject`.
+
+#### Portal Object
+
+The returns object has three attributes
+
+##### route
+
+Which is a MethodFactory, it can be used to generate client routes.
+
+##### resource
+
+Which is a ResourceFactory, it can be used to generate client resources.
+
+##### _client
+
+Which is the underlying client instance used by the factories.
+
 ## Status
 
 This is still a work in progress :D any help is appreciated
