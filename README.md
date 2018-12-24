@@ -40,8 +40,33 @@ const someGetMethodWithParamPromise = YourAPIClient.someGetMethodWithParam(5) //
 
 ## Documentation
 
+### createPortalClient
 
+(default exported method)
 
+Used to create a portal base client.
+
+#### Input
+```
+{
+  baseUrl?: string, // TODO: this shouldn't be optional but i can construct RequestConfig unless i set it as optional
+  // protocol?: 'http' | 'https',
+  // port?: number,
+  headers?: OutgoingHttpHeaders,
+  authentication?: Authentication,
+  retries?: number, // available from RequestOptions
+  timeout?: Seconds, // available from HttpsRequestOptions
+  onError?: 'reject' | 'resolve',
+}
+```
+#### Output
+```
+{
+  route: MethodFactory,
+  resource: ResourceFactory,
+  _client: Client,
+}
+```
 ## Status
 
 This is still a work in progress :D any help is appreciated
