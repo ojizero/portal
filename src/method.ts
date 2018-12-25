@@ -26,8 +26,8 @@ export interface MethodSpec {
 export type RouteFunction = (...args: any[]) => Promise<Response>
 export type MethodFactory = (spec: MethodSpec) => RouteFunction
 
-export function method (client: Client): MethodFactory {
-  return function methodGenerator (spec: MethodSpec): RouteFunction {
+export function methodGenerator (client: Client): MethodFactory {
+  return function methodFactory (spec: MethodSpec): RouteFunction {
     const {
       path,
       method: _method = 'GET',
@@ -129,4 +129,4 @@ export function method (client: Client): MethodFactory {
   }
 }
 
-export default method
+export default methodGenerator
