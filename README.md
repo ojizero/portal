@@ -86,7 +86,7 @@ export const someGetMethodWithParam = client.route({ path: '/some/path/:withInne
 /* ******************* */
 
 /// In your application
-import YourAPIClient from 'your-client-module'
+import * as YourAPIClient from 'your-client-module'
 
 const someGetMethodPromise = YourAPIClient.someGetMethod() // GET http://some.base.url/some/path
 const someGetMethodWithParamPromise = YourAPIClient.someGetMethodWithParam(5) // GET http://some.base.url/some/path/5
@@ -264,8 +264,8 @@ This is still a work in progress :D any help is appreciated
 - [ ] Get `onError: resolve` to work
 - [ ] Support simplified form for validation
 - [ ] Finalize behvaiour of genreator method functions
-  - [ ] What to do with their arguments (ambiguity of options/payload/querystring in args)
-  - [ ] Support optional path arguments ?
+  - [x] What to do with their arguments (ambiguity of options/payload/querystring in args)
+  - [ ] Document internal method factory behvaiour
 - [ ] ...
 
 ## License

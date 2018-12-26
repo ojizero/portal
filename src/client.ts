@@ -1,4 +1,3 @@
-import got from 'got'
 import querystring from 'querystring'
 import { IncomingHttpHeaders } from 'http';
 import { OutgoingHttpHeaders } from 'http'
@@ -158,6 +157,7 @@ export class PortalClient implements Client {
       json: isJson,
       timeout: timeout * 1000,
       throwHttpErrors: onError !== 'resolve',
+      // TODO: what if the payload is undefined ?
       body: isJson ? payload : JSON.stringify(payload),
     }
   }

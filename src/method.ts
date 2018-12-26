@@ -19,7 +19,6 @@ export interface MethodSpec {
   queryString?: ValdiationSpec,
   contentType?: string,
   accept?: string,
-  // strict?: boolean,
   headers?: OutgoingHttpHeaders,
 }
 
@@ -57,36 +56,44 @@ export function methodGenerator (client: Client): MethodFactory {
       let options
 
       if (typeof args[length - 1] === 'object') {
+        // If the last argument it an
+        // object use it as options
         options = args[length - 1]
         args = args.slice(0, length - 1)
         length -= 1
       }
 
       if (typeof args[length - 1] === 'object') {
+        // If the second to last argument it an
+        // object use it as a payload
         payload = args[length - 1]
         args = args.slice(0, length - 1)
         length -= 1
-      } else if (
-        // TODO: ??? does this make sense ?
-        (typeof body !== 'undefined' || method === 'POST' || method === 'PUT')
-        && typeof options !== 'undefined'
-      ) {
-        const optionsHasPayload = 'payload' in options
-
-        payload = optionsHasPayload ? options.payload : options
-        options = optionsHasPayload ? options : undefined
+      } else if ((!!body) && typeof options !== 'undefined') {
+        // If paylaod is expected and options is defined use
+        // the last argument as payload instead of options
+        payload = options
+        options = undefined
       }
 
       if (typeof args[length - 1] === 'object') {
+        // If the third to last argument it an
+        // object use it as a query string
         query = args[length - 1]
         args = args.slice(0, length - 1)
         length -= 1
-      } else if (typeof queryString !== 'undefined' && typeof options !== 'undefined') {
-        const optionsHasQueryString = 'queryString' in options
-
-        query = optionsHasQueryString ? options.queryString : options
-        options = optionsHasQueryString ? options : undefined
-      } else if (typeof queryString !== 'undefined' && typeof payload !== 'undefined') {
+      } else if ((!!queryString) && (!!body)) {
+        // Both query string and body are expected
+        if (method === 'GET') {
+          // For GET requests give precedence to query string
+          query = payload
+          payload = undefined
+        } else {
+          // For everything else give precedence to payload
+          query = undefined
+        }
+      } else if ((!!queryString) && (!body)) {
+        // Query string is expected but body isn't
         query = payload
         payload = undefined
       }
@@ -95,16 +102,16 @@ export function methodGenerator (client: Client): MethodFactory {
       ensureValidData(body, payload, 'Payload')
       ensureValidData(queryString, query, 'Query string')
 
-      // Regexp here isn global we wanna
+      // Regexp here is global we wanna
       // match all avaialbel parameters
-      let paramsCount = (path.match(/:[^\/:]+/g) || []).length
+      let paramsCount: number = (path.match(/:[^\/:]+/g) || []).length
 
       let fullPath: string = args.reduce((acc, arg) => {
         paramsCount -= 1
 
         // Regexp here isn't global we wanna
         // match the first parameter only
-        return acc.replace(/:[^\/:]+/, arg)
+        return acc.replace(/:[^\/:&?]+/, arg)
       }, path)
 
       if (paramsCount !== 0) throw new Error('Number of provided parameters does not macth request path arguments')
@@ -114,8 +121,8 @@ export function methodGenerator (client: Client): MethodFactory {
         [ fullPath, attachedQuery ] = fullPath.split('?', 2)
 
         query = {
-          ...query,
           ...parseQuery(attachedQuery),
+          ...query,
         }
 
         query = stringifyQuery(query)

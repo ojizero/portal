@@ -59,7 +59,8 @@ export class Resource {
   }
 
   initialize () {
-    this.enabledRoutes.forEach((route) => {
+    this.enabledRoutes.forEach(route => {
+      route = route.toLowerCase()
       const routeMethod = this.methodFromRoute(route)
 
       Object.defineProperty(this, route, {
@@ -89,6 +90,9 @@ export class Resource {
 
   methodFromRoute (route: string) {
     let spec = defaultBaseSpecs[route]
+
+    if (!spec) throw new Error(`An unsupported default route, ${route}, requested.`)
+
     const prefix = this.baseRoute
     const suffix = spec.path
 
