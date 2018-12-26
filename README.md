@@ -36,7 +36,7 @@ function myApiWrapper (arg1, arg2) {
 /// TOO MUCH BOILERPLATE !!
 ```
 
-The above boilerplate where you worry about whether you're using `request` or `request-promise` or whatnot, and you worry about ho to resolve your response and what it looks like, get completely abstracted and unified into,
+The above boilerplate where you worry about whether you're using `request` or `request-promise` or whatnot, and you worry about how to resolve your response and what it looks like, get completely abstracted and unified into,
 
 ```javascript
 import portal from '@ojizero/portal'
@@ -177,19 +177,79 @@ If set to `resolve` error won't throw, instead will return a normal response, de
 
 #### Portal Object
 
-The returns object has three attributes
+The returns object has three attributes,
 
 ##### route
 
-Which is a MethodFactory, it can be used to generate client routes.
+A function (representing a MethodFactory), used to generate client routes. It takes for an input a [MethodSpec](######methodspec) and returns a function representing the API call.
+
+###### MethodSpec
+
+An object with the following attributes
+
+**`path`** (required) `string`
+
+The URL path for the route, it should be a relateive path given the [baseUrl](#####baseurl) defined when initiating the portal client.
+
+**`method`** (optional) `string`
+
+The method for the HTTP call, defaults to `GET`.
+
+**`params`** (optional) [`ValdiationSpec`]()
+
+An optional validation specification for the path arguments in of the route.
+
+**`body`** (optional) [`ValdiationSpec`]()
+
+An optional validation specification for the payload arguments of the route.
+
+**`queryString`** (optional) [`ValdiationSpec`]()
+
+An optional validation specification for the query string arguments in of the route.
+
+**`contentType`** (optional) `string`
+
+The Content-Type header value of the request, defaults to `application/json`.
+
+**`accept`** (optional) `string`
+
+The Accept header value of the request, defaults to `application/json`.
+
+**`headers`** (optional) `OutgoingHttpHeaders`
+
+Additional headers to always be added to requests to the given route, defaults to `{}`.
 
 ##### resource
 
-Which is a ResourceFactory, it can be used to generate client resources.
+A function (representing a ResourceFactory), and can be used to generate client resources. A resource is a basic CRUD API for a given route, providing a default set of APIs for `list`, `get`, `edit`, `add`, and `delete`, those APIs correspond to the following HTTP calls,
+
+- list -> `GET /some-uri`
+- get -> `GET /some-uri/:id`
+- edit -> `PUT /some-uri/:id { some payload to update the ID with }`
+- add (aliased as set) `POST /some-uri { some payload to create a new reource with }`
+- del (aliased as delete) `DELETE /some-uri/:id`
+
+It takes a [`ResourceConfig`](######resourceconfig) object as input and returns a ResourceFactory function. When calling the ResourceFactory, the result is an object with the list of CRUD operations (and any additional ones defined in the resource config) as function defined on it.
+
+###### ResourceConfig
+
+An object with the following attributes,
+
+**`baseRoute`** (required) `string`
+
+The base API route to generate the CRUD around.
+
+**`enabledRoutes`** (optional) `Array<string>`
+
+The list of routes to enable, by default all basic CRUD APIs are enabled.
+
+**`extraMethods`** (optional) `{ [k:string]: MethodSpec }`
+
+A JSON with string keys mapping to corresponding [MethodSpec](######methodspec). Each key will be added an added method defined by it's corresponding spec. Defaults to `{}`.
 
 ##### _client
 
-Which is the underlying client instance used by the factories.
+The underlying client instance used by the two previous factories. This is exposed only for transparncy but is not intended to be used ideally by anyone external.
 
 ## Status
 
@@ -197,9 +257,9 @@ This is still a work in progress :D any help is appreciated
 
 ### TODO
 
-- [ ] Finish documentations
+- [x] Finish documentations
   - [x] Why?
-  - [ ] More on external API
+  - [x] More on external API
 - [ ] Support non JSON payload
 - [ ] Get `onError: resolve` to work
 - [ ] Support simplified form for validation

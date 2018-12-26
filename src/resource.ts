@@ -12,7 +12,7 @@ const defaultBaseSpecs: { [k: string]: MethodSpec } = {
   },
   edit: {
     path: '/:id',
-    method: 'POST',
+    method: 'PUT',
   },
   add: {
     path: '/',
