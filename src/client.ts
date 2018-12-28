@@ -1,8 +1,10 @@
 import querystring from 'querystring'
-import { IncomingHttpHeaders } from 'http';
-import { OutgoingHttpHeaders } from 'http'
+import {
+  IncomingHttpHeaders,
+  OutgoingHttpHeaders,
+} from 'http'
 import defaultsDeep from 'lodash.defaultsdeep'
-import { RequestOptions as HttpsRequestOptions } from 'https';
+import { RequestOptions as HttpsRequestOptions } from 'https'
 
 interface BaseAuth {
   type: 'basic' | 'bearer' | 'none',

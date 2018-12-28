@@ -34,7 +34,6 @@ function isRequestConfig (arg: any): arg is RequestConfig {
   return typeof arg === 'object'
 }
 
-
 export function methodGenerator (client: Client): MethodFactory {
   return function methodFactory (spec: MethodSpec): RouteFunction {
     const {
@@ -61,31 +60,19 @@ export function methodGenerator (client: Client): MethodFactory {
     return async function (...args: any[]): Promise<Response> {
       let length = args.length
 
-      let options: RequestConfig = {}
-      let query: any
-      let payload: any
-      // let pathParams
+      let config: RequestConfig = {}
 
       if (isRequestConfig(args[length - 1])) {
-        // If the last argument it an
-        // object use it as options
-        options = args[length - 1]
+        config = args[length - 1]
         args = args.slice(0, length - 1)
         length -= 1
       }
 
-      if ('queryString' in options) {
-        query = options.queryString
-        delete options.queryString
-      }
-      if ('payload' in options) {
-        payload = options.payload
-        delete options.payload
-      }
-      // if ('path' in options) {
-      //   pathParams = options.path
-      //   delete options.path
-      // }
+      let {
+        queryString: query,
+        payload,
+        ...options
+      } = config
 
       ensureValidData(params, args, 'Parameters')
       ensureValidData(body, payload, 'Payload')
@@ -93,7 +80,7 @@ export function methodGenerator (client: Client): MethodFactory {
 
       // Regexp here is global we wanna
       // match all avaialbel parameters
-      let paramsCount: number = (path.match(/:[^\/:]+/g) || []).length
+      let paramsCount: number = (path.match(/:[^\/:&?]+/g) || []).length
 
       let fullPath: string = args.reduce((acc, arg) => {
         paramsCount -= 1
@@ -114,8 +101,7 @@ export function methodGenerator (client: Client): MethodFactory {
           ...query,
         }
 
-        query = stringifyQuery(query)
-        fullPath = `${fullPath}?${query}`
+        fullPath = `${fullPath}?${stringifyQuery(query)}`
       }
 
       options = defaults({}, defaultOptions, options)

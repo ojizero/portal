@@ -1,6 +1,6 @@
 /// <reference path='typings/globals.d.ts' />
 
-import Client, { Config, RawResponse, Authentication, AuthenticationTypes, ClientFn, Response } from '../src/client'
+import Client, { Config, RawResponse, Authentication, ClientFn, Response } from '../src/client'
 
 const mockRawResponse: RawResponse = {
   body: 'any',
@@ -24,12 +24,12 @@ const mockConfig: Config = {
 }
 
 const mockBearerAuthConfig: Authentication = {
-  type: AuthenticationTypes.BearerAuth,
+  type: 'bearer',
   authToken: 'some-token-value'
 }
 
 const mockBasicAuthConfig: Authentication = {
-  type: AuthenticationTypes.BasicAuth,
+  type: 'basic',
   username: 'some-username',
   password: 'some-password',
 }
