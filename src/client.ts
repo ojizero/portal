@@ -4,20 +4,26 @@ import { OutgoingHttpHeaders } from 'http'
 import defaultsDeep from 'lodash.defaultsdeep'
 import { RequestOptions as HttpsRequestOptions } from 'https';
 
-export enum AuthenticationTypes {
-  None = 'none',
-  BasicAuth = 'basic',
-  // TokenAuth = 'token',
-  // ApiKeyAuth = 'key',
-  BearerAuth = 'bearer',
+interface BaseAuth {
+  type: 'basic' | 'bearer' | 'none',
 }
 
-export interface Authentication {
-  type: AuthenticationTypes,
-  username?: string,
-  password?: string,
-  authToken?: string,
+export interface BasicAuth extends BaseAuth {
+  type: 'basic',
+  username: string,
+  password: string,
 }
+
+export interface BearerAuth extends BaseAuth {
+  type: 'bearer',
+  authToken: string,
+}
+
+export interface NoAuth extends BaseAuth {
+  type: 'none',
+}
+
+export type Authentication = NoAuth | BasicAuth | BearerAuth
 
 interface AuthSpec {
   useHeader: boolean,
@@ -164,7 +170,7 @@ export class PortalClient implements Client {
 
   setupAuthentication (auth: Authentication): AuthSpec {
     switch (auth.type) {
-      case AuthenticationTypes.None: {
+      case 'none': {
         return {
           useHeader: false,
           usePayload: false,
@@ -173,7 +179,8 @@ export class PortalClient implements Client {
           value: '',
         }
       }
-      case AuthenticationTypes.BasicAuth: {
+
+      case 'basic': {
         const token = Buffer.from(`${auth.username}:${auth.password}`).toString('base64')
 
         return {
@@ -185,7 +192,7 @@ export class PortalClient implements Client {
         }
       }
 
-      case AuthenticationTypes.BearerAuth: {
+      case 'bearer': {
         return {
           useHeader: true,
           usePayload: false,
