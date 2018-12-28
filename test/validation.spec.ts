@@ -22,7 +22,7 @@ const invalidData = {
   incorrectKey: 'some value',
 }
 
-describe('ensureValidData', () => {
+describe('Ensure valid data', () => {
   describe('Using Joi schemas', () => {
     it('passes valid data', () => {
       expect(() => ensureValidData(joiSchema, validData))
@@ -44,6 +44,16 @@ describe('ensureValidData', () => {
     it('rejects invalid data', () => {
       expect(() => ensureValidData(customValidator, invalidData))
         .to.throw()
+    })
+  })
+
+  describe.skip('Using simplified schemas', () => {
+    it('passes valid data', () => {
+      //
+    })
+
+    it('rejects invalid data', () => {
+      //
     })
   })
 })

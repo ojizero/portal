@@ -39,9 +39,9 @@ const mockGetMethodWithQueryString: MethodSpec = {
   path: '/mock-path/:param',
   accept: 'mock/type',
   contentType: 'mock/type',
-  queryString: {
+  queryString: Joi.object({
     some_arg: Joi.string().required()
-  }
+  }),
 }
 
 describe('Method', async () => {

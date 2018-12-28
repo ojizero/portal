@@ -6,8 +6,8 @@ import {
   stringify as stringifyQuery,
 } from 'querystring'
 
-import { ValdiationSpec, ensureValidData } from './validation';
-import { OutgoingHttpHeaders } from 'http';
+import { OutgoingHttpHeaders } from 'http'
+import { ValdiationSpec, ensureValidData } from './validation'
 
 const applicationJson = 'application/json'
 
