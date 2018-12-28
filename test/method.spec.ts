@@ -125,7 +125,7 @@ describe('Method', async () => {
       methodFunction = methodGenerator(mockPostMethodNoParams)
       const payload = { some: { mock: 'payload '} }
 
-      await methodFunction(payload)
+      await methodFunction({ payload })
 
       expect(client.request)
         .to.have.been.calledOnceWithExactly(
@@ -145,7 +145,7 @@ describe('Method', async () => {
       methodFunction = methodGenerator(mockPostMethodWithParams)
       const payload = { some: { mock: 'payload '} }
 
-      await methodFunction(10, payload)
+      await methodFunction(10, { payload })
 
       expect(client.request)
         .to.have.been.calledOnceWithExactly(
@@ -169,9 +169,9 @@ describe('Method', async () => {
 
     it('passes query string arguments if specified', async () => {
       methodFunction = methodGenerator(mockGetMethodWithQueryString)
-      const query = { some_arg: 'a-string' }
+      const queryString = { some_arg: 'a-string' }
 
-      await methodFunction(10, query)
+      await methodFunction(10, { queryString })
 
       expect(client.request)
         .to.have.been.calledOnceWithExactly(

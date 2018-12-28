@@ -60,7 +60,7 @@ if (require.main === module) {
   delete response._rawResponse // This is a HUGE object
   console.log({ createIndex: { stringifiedResponse: JSON.stringify(response) } })
 
-  response = await client.addDocument('test-index', 'test-type', 'test-id', { a: { test: 'document' } })
+  response = await client.addDocument('test-index', 'test-type', 'test-id', { payload: { a: { test: 'document' } } })
   delete response._rawResponse // This is a HUGE object
   console.log({ addDocument: { stringifiedResponse: JSON.stringify(response) } })
 

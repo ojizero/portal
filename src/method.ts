@@ -1,4 +1,4 @@
-import { Client, Response, RequestConfig } from './client'
+import { Client, Response, RequestConfig as ClientRequestConfig } from './client'
 
 import defaults from 'lodash.defaultsdeep'
 import {
@@ -22,8 +22,18 @@ export interface MethodSpec {
   headers?: OutgoingHttpHeaders,
 }
 
+export type RequestConfig = ClientRequestConfig & {
+  path?: any[] | { [p: string]: any },
+  payload?: any,
+  queryString?: { [q: string]: any },
+}
 export type RouteFunction = (...args: any[]) => Promise<Response>
 export type MethodFactory = (spec: MethodSpec) => RouteFunction
+
+function isRequestConfig (arg: any): arg is RequestConfig {
+  return typeof arg === 'object'
+}
+
 
 export function methodGenerator (client: Client): MethodFactory {
   return function methodFactory (spec: MethodSpec): RouteFunction {
@@ -40,7 +50,7 @@ export function methodGenerator (client: Client): MethodFactory {
 
     const method = _method.toUpperCase()
 
-    const defaultOptions: RequestConfig = {
+    const defaultOptions: ClientRequestConfig = {
       headers: {
         'Accept': accept,
         'Content-Type': contentType,
@@ -51,11 +61,12 @@ export function methodGenerator (client: Client): MethodFactory {
     return async function (...args: any[]): Promise<Response> {
       let length = args.length
 
-      let query
-      let payload
-      let options
+      let options: RequestConfig = {}
+      let query: any
+      let payload: any
+      // let pathParams
 
-      if (typeof args[length - 1] === 'object') {
+      if (isRequestConfig(args[length - 1])) {
         // If the last argument it an
         // object use it as options
         options = args[length - 1]
@@ -63,40 +74,18 @@ export function methodGenerator (client: Client): MethodFactory {
         length -= 1
       }
 
-      if (typeof args[length - 1] === 'object') {
-        // If the second to last argument it an
-        // object use it as a payload
-        payload = args[length - 1]
-        args = args.slice(0, length - 1)
-        length -= 1
-      } else if ((!!body) && typeof options !== 'undefined') {
-        // If paylaod is expected and options is defined use
-        // the last argument as payload instead of options
-        payload = options
-        options = undefined
+      if ('queryString' in options) {
+        query = options.queryString
+        delete options.queryString
       }
-
-      if (typeof args[length - 1] === 'object') {
-        // If the third to last argument it an
-        // object use it as a query string
-        query = args[length - 1]
-        args = args.slice(0, length - 1)
-        length -= 1
-      } else if ((!!queryString) && (!!body)) {
-        // Both query string and body are expected
-        if (method === 'GET') {
-          // For GET requests give precedence to query string
-          query = payload
-          payload = undefined
-        } else {
-          // For everything else give precedence to payload
-          query = undefined
-        }
-      } else if ((!!queryString) && (!body)) {
-        // Query string is expected but body isn't
-        query = payload
-        payload = undefined
+      if ('payload' in options) {
+        payload = options.payload
+        delete options.payload
       }
+      // if ('path' in options) {
+      //   pathParams = options.path
+      //   delete options.path
+      // }
 
       ensureValidData(params, args, 'Parameters')
       ensureValidData(body, payload, 'Payload')

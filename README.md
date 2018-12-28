@@ -16,7 +16,7 @@ Instead of worrying about how to consume some HTTP API, we should focus on the b
 
 So instead of having the focus be centered around how you make the request like the following,
 
-```javascript
+```js
 import request from 'request' // or who knows what you wanna use ¯\_(ツ)_/¯
 
 function myApiWrapper (arg1, arg2) {
@@ -38,7 +38,7 @@ function myApiWrapper (arg1, arg2) {
 
 The above boilerplate where you worry about whether you're using `request` or `request-promise` or whatnot, and you worry about how to resolve your response and what it looks like, get completely abstracted and unified into,
 
-```javascript
+```js
 import portal from '@ojizero/portal'
 
 const portalBase = portal({ baseUrl: 'https://some.api' })
@@ -80,6 +80,8 @@ const client = portal({ baseUrl: 'some.base.url' }) // Initial configuration can
 export const someGetMethod = client.route({ path: '/some/path' })
 // Get method with path variables
 export const someGetMethodWithParam = client.route({ path: '/some/path/:withInnerVariable' })
+// Post method with path variables
+export const somePostMethodWithParam = client.route({ path: '/some/path/:withInnerVariable', method: 'POST' })
 
 /// NOTE: ideally this wouldn't be a module level instance but this is to simplify this example 😬
 
@@ -90,6 +92,7 @@ import * as YourAPIClient from 'your-client-module'
 
 const someGetMethodPromise = YourAPIClient.someGetMethod() // GET http://some.base.url/some/path
 const someGetMethodWithParamPromise = YourAPIClient.someGetMethodWithParam(5) // GET http://some.base.url/some/path/5
+const somePostMethodWithParamPromise = YourAPIClient.someGetMethodWithParam(5, { payload: { some: 'payload' } }) // POST http://some.base.url/some/path/5 { some: 'payload' }
 ```
 
 Examples can be found in the [`examples`](./examples) folder
@@ -219,6 +222,62 @@ The Accept header value of the request, defaults to `application/json`.
 
 Additional headers to always be added to requests to the given route, defaults to `{}`.
 
+###### Usage example
+
+```js
+/* --- snip --- */
+
+const getRoute = portalObject.route({ path: '/some/base/path' })
+await getRoute() // GET /some/base/path
+await getRoute({ queryString: { a: 10 } }) // GET /some/base/path?a=10
+
+/* --- snip --- */
+
+const postRoute = portalObject.route({ path: '/some/base/path', method: 'POST' })
+await postRoute({ payload: { some: 'payload' } }) // POST /some/base/path { some: 'payload' }
+
+/* --- snip --- */
+```
+
+###### RouteFunction
+
+Type: `(...args: any[]): Promise<Response>`
+
+A function that takes any number of arguments and performs the HTTP request.
+
+The only special argument is the last one, which can be an object hodling any request options that can be used by the underlying client, as well as the payload (under the key `payload`) and query string (under the key `queryString`) objects if needed.
+
+Example calls would be
+
+```js
+getMethod(arg1, arg2, /*...,*/ argn)
+getMethod(arg1, arg2, /*...,*/ argn, { queryString: { q: 'hello' } })
+postMethod(arg1, arg2, /*...,*/ argn, { payload: { q: 'hello' } })
+```
+
+All calls to a RouteFunction produce a promise that resolves to an oject of [`Response`](######response) type.
+
+###### Response
+
+An object with the following attributes,
+
+- `status`, which is an object holding the HTTP status both as a message and a code.
+- `body`, any response body returns from the HTTP request
+- `headers`, HTTP headers returned for the response
+- `_rawResponse`, the raw underlying HTTP response object (from the underlying client library)
+
+```ts
+export interface Response {
+  status: {
+    code?: number,
+    word?: string,
+  },
+  body: any,
+  headers: IncomingHttpHeaders,
+  _rawResponse: RawResponse,
+}
+```
+
 ##### resource
 
 A function (representing a ResourceFactory), and can be used to generate client resources. A resource is a basic CRUD API for a given route, providing a default set of APIs for `list`, `get`, `edit`, `add`, and `delete`, those APIs correspond to the following HTTP calls,
@@ -230,6 +289,8 @@ A function (representing a ResourceFactory), and can be used to generate client 
 - del (aliased as delete) `DELETE /some-uri/:id`
 
 It takes a [`ResourceConfig`](######resourceconfig) object as input and returns a ResourceFactory function. When calling the ResourceFactory, the result is an object with the list of CRUD operations (and any additional ones defined in the resource config) as function defined on it.
+
+The result from using the resource factory, is an object with the enabled default resource method, and any other extra ones as its keys, and each of those keys poiting to the `RouteFunction` used to execute the API call.
 
 ###### ResourceConfig
 
@@ -247,9 +308,34 @@ The list of routes to enable, by default all basic CRUD APIs are enabled.
 
 A JSON with string keys mapping to corresponding [MethodSpec](######methodspec). Each key will be added an added method defined by it's corresponding spec. Defaults to `{}`.
 
+###### Usage example
+
+```js
+/* --- snip --- */
+
+const apiResource = portalObject.resource({ baseRoute: '/some/base/path' })
+/**
+ * apiResource has the following methods on it
+ *   list, get, edit, add, set, del, delete
+ * corresponding the default set of APIs in an HTTP resource
+ */
+
+await apiResource.list() // GET /some/base/path
+await apiResource.get(someId) // GET /some/base/path/:someId
+// ... etc
+
+/* --- snip --- */
+```
+
+Each method defined on the resource object follows the type [RouteFunction](######routefunction).
+
 ##### _client
 
 The underlying client instance used by the two previous factories. This is exposed only for transparncy but is not intended to be used ideally by anyone external.
+
+##### Usage of the portal object
+
+RouteFunction
 
 ## Status
 
@@ -263,9 +349,9 @@ This is still a work in progress :D any help is appreciated
 - [ ] Support non JSON payload
 - [ ] Get `onError: resolve` to work
 - [ ] Support simplified form for validation
-- [ ] Finalize behvaiour of genreator method functions
+- [x] Finalize behvaiour of genreator method functions
   - [x] What to do with their arguments (ambiguity of options/payload/querystring in args)
-  - [ ] Document internal method factory behvaiour
+  - [x] Document RouteFunction behvaiour
 - [ ] ...
 
 ## License
