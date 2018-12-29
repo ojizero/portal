@@ -13,7 +13,9 @@ function isJoiSchema (spec: any): spec is SchemaLike {
   return !!spec && spec.isJoi
 }
 
-export type ValdiationSpec = SchemaLike | Validator
+export type SimplifiedSpec = string | Array<string> | { [k: string]: SchemaLike | SimplifiedSpec }
+
+export type ValdiationSpec = SchemaLike | Validator | SimplifiedSpec
 
 export function ensureValidData (spec: ValdiationSpec | undefined, data: any, name?: string) {
   if (!spec) return
