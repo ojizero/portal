@@ -1,19 +1,49 @@
 /// <reference path='typings/globals.d.ts' />
 
+import Joi from 'joi'
 import transformSchema from '../src/simplified-joi'
-import Joi from 'joi';
 
 describe('Transform simplified validation schema to Joi schemas', () => {
-  it.skip('should pass on `string` type', () => {
-    //
+  it('passes on `string` type', () => {
+    const joiString = Joi.string().required()
+
+    expect(transformSchema('string'))
+      .to.deep.equal(joiString)
   })
 
-  it.skip('should pass on `number` type', () => {
-    //
+  it('passes on `string|notrequired` type', () => {
+    const joiString = Joi.string()
+
+    expect(transformSchema('string|notrequired'))
+      .to.deep.equal(joiString)
   })
 
-  it.skip('should pass on `symbol` type', () => {
-    //
+  it('passes on `number` type', () => {
+    const joiNumber = Joi.number().required()
+
+    expect(transformSchema('number'))
+      .to.deep.equal(joiNumber)
+  })
+
+  it('passes on `number|notrequired` type', () => {
+    const joiNumber = Joi.number()
+
+    expect(transformSchema('number|notrequired'))
+      .to.deep.equal(joiNumber)
+  })
+
+  it('passes on `symbol` type', () => {
+    const joiSymbol = Joi.symbol().required()
+
+    expect(transformSchema('symbol'))
+      .to.deep.equal(joiSymbol)
+  })
+
+  it('passes on `symbol|notrequired` type', () => {
+    const joiSymbol = Joi.symbol()
+
+    expect(transformSchema('symbol|notrequired'))
+      .to.deep.equal(joiSymbol)
   })
 
   it('fails on undefined types', () => {
@@ -21,16 +51,36 @@ describe('Transform simplified validation schema to Joi schemas', () => {
       .to.throw()
   })
 
-  it.skip('transforms array schemas', () => {
-    //
+  it('transforms array schemas', () => {
+    const joiArray = Joi.array().ordered(
+      Joi.string().required(),
+      Joi.number().required(),
+      Joi.number(),
+      Joi.string(),
+    ).required()
+
+    expect(transformSchema([
+      'string',
+      'number',
+      'number|notrequired',
+      'string|notrequired',
+    ]))
+      .to.deep.equal(joiArray)
   })
 
-  it.skip('transforms object schemas', () => {
-    //
-  })
+  it('transforms object schemas', () => {
+    const joiObject = Joi.object({
+      numberKey: Joi.number().required(),
+      stringOptional: Joi.string(),
+      someArray: Joi.array().ordered(Joi.string().required(), Joi.number()).required(),
+    }).required()
 
-  it.skip('passes `notrequired` option to schemas', () => {
-    //
+    expect(transformSchema({
+      numberKey: 'number',
+      stringOptional: 'string|notrequired',
+      someArray: ['string', 'number|notrequired'],
+    }))
+      .to.deep.equal(joiObject)
   })
 
   it('passes `raw` option to schemas', () => {

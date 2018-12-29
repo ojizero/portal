@@ -14,6 +14,10 @@ const customValidator = {
   }
 }
 
+const simplifiedSchema = {
+  correctKey: 'string',
+}
+
 const validData = {
   correctKey: 'correctValue'
 }
@@ -47,13 +51,15 @@ describe('Ensure valid data', () => {
     })
   })
 
-  describe.skip('Using simplified schemas', () => {
+  describe('Using simplified schemas', () => {
     it('passes valid data', () => {
-      //
+      expect(() => ensureValidData(simplifiedSchema, validData))
+        .to.not.throw()
     })
 
     it('rejects invalid data', () => {
-      //
+      expect(() => ensureValidData(simplifiedSchema, invalidData))
+        .to.throw()
     })
   })
 })
