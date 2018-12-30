@@ -32,6 +32,40 @@ describe('Transform simplified validation schema to Joi schemas', () => {
       .to.deep.equal(joiNumber)
   })
 
+  it('passes on `bool` and `boolean` type', () => {
+    const joiBool = Joi.bool().required()
+    const joiBoolean = Joi.boolean().required()
+
+    const simplifiedBool = transformSchema('bool')
+    const simplifiedBoolean = transformSchema('boolean')
+
+    expect(simplifiedBool)
+      .to.deep.equal(joiBool)
+
+    expect(simplifiedBoolean)
+      .to.deep.equal(joiBoolean)
+
+    expect(simplifiedBool)
+      .to.deep.equal(simplifiedBoolean)
+  })
+
+  it('passes on `bool|notrequired` and `boolean|notrequired` type', () => {
+    const joiBool = Joi.bool()
+    const joiBoolean = Joi.boolean()
+
+    const simplifiedBool = transformSchema('bool|notrequired')
+    const simplifiedBoolean = transformSchema('boolean|notrequired')
+
+    expect(simplifiedBool)
+      .to.deep.equal(joiBool)
+
+    expect(simplifiedBoolean)
+      .to.deep.equal(joiBoolean)
+
+    expect(simplifiedBool)
+      .to.deep.equal(simplifiedBoolean)
+  })
+
   it('passes on `symbol` type', () => {
     const joiSymbol = Joi.symbol().required()
 
@@ -81,14 +115,6 @@ describe('Transform simplified validation schema to Joi schemas', () => {
       someArray: ['string', 'number|notrequired'],
     }))
       .to.deep.equal(joiObject)
-  })
-
-  it('passes `raw` option to schemas', () => {
-    const value = 'something'
-    const rawSchema = `${value}|raw`
-
-    expect(transformSchema(rawSchema))
-      .to.deep.equal(value)
   })
 
   it('returns Joi schema unmodified if passed', () => {

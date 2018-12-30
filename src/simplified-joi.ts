@@ -3,9 +3,13 @@ import Joi, { SchemaLike } from 'joi'
 const JOI_MAPPING: { [k: string]: SchemaLike } = {
   string: Joi.string(),
   number: Joi.number(),
+  bool: Joi.bool(),
+  boolean: Joi.boolean(),
   symbol: Joi.symbol(),
-  object: Joi.object(),
-  array: Joi.array(),
+
+  // Simply pass schema as object or array for them
+  // object: Joi.object(),
+  // array: Joi.array(),
 }
 
 function isObject (value: any): value is { [k: string]: any } {
@@ -41,10 +45,7 @@ export function transformSchema (schema: any): SchemaLike {
 
   const [schemaName, schemaOptions = ''] = (schema as string).split('|', 2)
 
-  const isRaw = /raw/i
   const isNotRequired = /notrequired/i
-
-  if (isRaw.test(schemaOptions)) return schemaName
 
   schema = JOI_MAPPING[schemaName]
 
