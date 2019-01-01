@@ -168,7 +168,7 @@ export class PortalClient implements Client {
       timeout: timeout * 1000,
       throwHttpErrors: onHttpErrors !== 'resolve',
       // TODO: what if the payload is undefined ?
-      body: isJson ? payload : JSON.stringify(payload),
+      body: payload,
     }
   }
 

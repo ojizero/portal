@@ -14,6 +14,10 @@ function makeESClient (host) {
       path: '/:indexName',
       method: 'PUT',
     }),
+    deleteIndex: client.route({
+      path: '/:indexName',
+      method: 'DELETE',
+    }),
     getDocument: client.route({
       path: '/:indexName/:docType/:docId',
       method: 'GET',
@@ -22,29 +26,10 @@ function makeESClient (host) {
       path: '/:indexName/:docType/:docId',
       method: 'POST',
     }),
-    // TODO: elastic's bulk API currently is incompatible with portal :D
     bulkOperation: client.route({
       path: '/_bulk',
       method: 'POST',
-      // You can pass any Joi based schema for validation
-      // Or you can use the simplified syntax provided by portal
-      // Or you can use any custom object withe a `validate` method
-      // body: Joi.string().required(),
-      // Joi.object({
-      //   body: Joi.array().items(
-      //     Joi.object({
-      //       index: Joi.object({
-      //         _index: Joi.string().required(),
-      //         _type: Joi.string().required(),
-      //         _id: Joi.string(),
-      //       }).required(),
-      //     }),
-      //     Joi.object(),
-      //   ).required()
-      // }).required(),
-      // headers: {
-      //   'Content-Type': 'application/text',
-      // }
+      contentType: 'application/x-ndjson',
     }),
   }
 }
@@ -68,7 +53,11 @@ if (require.main === module) {
   delete response._rawResponse // This is a HUGE object
   console.log({ getDocument: { stringifiedResponse: JSON.stringify(response) } })
 
-  response = await client.bulkOperation()
+  response = await client.bulkOperation({
+    payload: `{"index":{"_index":"test-index","_type":"test-type","_id":"bulk-document-id"}}
+{"a":{"test":"bulkoperation"}}
+`
+  })
   delete response._rawResponse // This is a HUGE object
   console.log({ getDocument: { stringifiedResponse: JSON.stringify(response) } })
 })()
