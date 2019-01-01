@@ -347,7 +347,7 @@ This is still a work in progress :D any help is appreciated
   - [x] Why?
   - [x] More on external API
 - [ ] Support non JSON payload
-- [ ] Get `onError: resolve` to work
+- [x] Get `onError: resolve` to work
 - [x] Support simplified form for validation
 - [x] Finalize behvaiour of genreator method functions
   - [x] What to do with their arguments (ambiguity of options/payload/querystring in args)

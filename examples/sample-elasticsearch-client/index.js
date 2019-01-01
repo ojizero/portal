@@ -6,7 +6,7 @@ const {
 function makeESClient (host) {
   const client = createPortalClient({
     baseUrl: host,
-    onError: 'resolve',
+    onHttpErrors: 'resolve',
   })
 
   return {
@@ -21,31 +21,31 @@ function makeESClient (host) {
     addDocument: client.route({
       path: '/:indexName/:docType/:docId',
       method: 'POST',
-    })
+    }),
     // TODO: elastic's bulk API currently is incompatible with portal :D
-    // bulkOperation: client.route({
-    //   path: '/_bulk',
-    //   method: 'POST',
-    //   // You can pass any Joi based schema for validation
-    //   // Or you can use the simplified syntax provided by portal
-    //   // Or you can use any custom object withe a `validate` method
-    //   body: Joi.string().required(),
-    //   // Joi.object({
-    //   //   body: Joi.array().items(
-    //   //     Joi.object({
-    //   //       index: Joi.object({
-    //   //         _index: Joi.string().required(),
-    //   //         _type: Joi.string().required(),
-    //   //         _id: Joi.string(),
-    //   //       }).required(),
-    //   //     }),
-    //   //     Joi.object(),
-    //   //   ).required()
-    //   // }).required(),
-    //   // headers: {
-    //   //   'Content-Type': 'application/text',
-    //   // }
-    // }),
+    bulkOperation: client.route({
+      path: '/_bulk',
+      method: 'POST',
+      // You can pass any Joi based schema for validation
+      // Or you can use the simplified syntax provided by portal
+      // Or you can use any custom object withe a `validate` method
+      // body: Joi.string().required(),
+      // Joi.object({
+      //   body: Joi.array().items(
+      //     Joi.object({
+      //       index: Joi.object({
+      //         _index: Joi.string().required(),
+      //         _type: Joi.string().required(),
+      //         _id: Joi.string(),
+      //       }).required(),
+      //     }),
+      //     Joi.object(),
+      //   ).required()
+      // }).required(),
+      // headers: {
+      //   'Content-Type': 'application/text',
+      // }
+    }),
   }
 }
 
@@ -65,6 +65,10 @@ if (require.main === module) {
   console.log({ addDocument: { stringifiedResponse: JSON.stringify(response) } })
 
   response = await client.getDocument('test-index', 'test-type', 'test-id')
+  delete response._rawResponse // This is a HUGE object
+  console.log({ getDocument: { stringifiedResponse: JSON.stringify(response) } })
+
+  response = await client.bulkOperation()
   delete response._rawResponse // This is a HUGE object
   console.log({ getDocument: { stringifiedResponse: JSON.stringify(response) } })
 })()

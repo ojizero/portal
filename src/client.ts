@@ -82,7 +82,7 @@ export interface Config {
   authentication?: Authentication,
   retries?: number, // available from RequestOptions
   timeout?: Seconds, // available from HttpsRequestOptions
-  onError?: 'reject' | 'resolve',
+  onHttpErrors?: 'reject' | 'resolve',
 }
 
 export type ClientFn = (options: RequestOptions) => Promise<RawResponse>
@@ -97,6 +97,7 @@ export interface Client {
 export class PortalClient implements Client {
   config: Config
   client: ClientFn
+  defaultRequestOptions: RequestConfig
 
   constructor (client: ClientFn, config: Config) {
     // TODO: this shouldn't exists but i had to set baseUrl as otpional to construc the RequestConfig type
@@ -104,6 +105,14 @@ export class PortalClient implements Client {
 
     this.client = client
     this.config = config
+    this.defaultRequestOptions = {
+      // port: 443,
+      retries: 0,
+      headers: {},
+      timeout: 30,
+      onHttpErrors: 'reject',
+      // protocol: 'https',
+    }
   }
 
   async request (method: string, path: string, payload: RequestBody, options: RequestConfig): Promise<Response> {
@@ -120,16 +129,9 @@ export class PortalClient implements Client {
       headers,
       retries,
       timeout,
-      onError,
+      onHttpErrors,
       authentication,
-    } = defaultsDeep({
-      // port: 443,
-      retries: 0,
-      headers: {},
-      timeout: 30,
-      onError: 'reject',
-      // protocol: 'https',
-    }, this.config, options)
+    } = defaultsDeep({}, options, this.config, this.defaultRequestOptions)
 
     if (typeof authentication !== 'undefined') {
       const {
@@ -164,7 +166,7 @@ export class PortalClient implements Client {
       retries,
       json: isJson,
       timeout: timeout * 1000,
-      throwHttpErrors: onError !== 'resolve',
+      throwHttpErrors: onHttpErrors !== 'resolve',
       // TODO: what if the payload is undefined ?
       body: isJson ? payload : JSON.stringify(payload),
     }
