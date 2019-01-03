@@ -91,8 +91,8 @@ export const somePostMethodWithParam = client.route({ path: '/some/path/:withInn
 import * as YourAPIClient from 'your-client-module'
 
 const someGetMethodPromise = YourAPIClient.someGetMethod() // GET http://some.base.url/some/path
-const someGetMethodWithParamPromise = YourAPIClient.someGetMethodWithParam(5) // GET http://some.base.url/some/path/5
-const somePostMethodWithParamPromise = YourAPIClient.someGetMethodWithParam(5, { payload: { some: 'payload' } }) // POST http://some.base.url/some/path/5 { some: 'payload' }
+const someGetMethodWithParamPromise = YourAPIClient.someGetMethodWithParam({ withInnerVariable: 5 }) // GET http://some.base.url/some/path/5
+const somePostMethodWithParamPromise = YourAPIClient.someGetMethodWithParam({ withInnerVariable: 5, $payload: { some: 'payload' } }) // POST http://some.base.url/some/path/5 { some: 'payload' }
 ```
 
 Examples can be found in the [`examples`](./examples) folder
@@ -241,18 +241,25 @@ await postRoute({ payload: { some: 'payload' } }) // POST /some/base/path { some
 
 ###### RouteFunction
 
-Type: `(...args: any[]): Promise<Response>`
+Type: `(params: RequestConfig = {}): Promise<Response>`
 
-A function that takes any number of arguments and performs the HTTP request.
+A function that takes an object defining the parameters it's spec defined and performs the HTTP request.
 
-The only special argument is the last one, which can be an object hodling any request options that can be used by the underlying client, as well as the payload (under the key `payload`) and query string (under the key `queryString`) objects if needed.
+Keys provided, that begin with `$` prefix are special, those are
+
+- `$payload`: holding any payload to be used in the body of the request
+- `$headers`: headers to override or add in that specific call
+- `$querystring`: query string parameters to add
+
+Any other `$` prefixed key will be treated as an underlying options for the raw client, and will be passed unchanged (minus the removal of the `$` prefix)
 
 Example calls would be
 
 ```js
-getMethod(arg1, arg2, /*...,*/ argn)
-getMethod(arg1, arg2, /*...,*/ argn, { queryString: { q: 'hello' } })
-postMethod(arg1, arg2, /*...,*/ argn, { payload: { q: 'hello' } })
+getMethod({ arg1, arg2, /*...,*/ argn })
+getMethod({ arg1, arg2, /*...,*/ argn, $headers: { some: 'headers' } })
+getMethod({ arg1, arg2, /*...,*/ argn, $querystring: { q: 'hello' } } })
+postMethod({ arg1, arg2, /*...,*/ argn, $payload: { q: 'hello' } } })
 ```
 
 All calls to a RouteFunction produce a promise that resolves to an oject of [`Response`](######response) type.

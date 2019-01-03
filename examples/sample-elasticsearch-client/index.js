@@ -11,19 +11,19 @@ function makeESClient (host) {
 
   return {
     createIndex: client.route({
-      path: '/:indexName',
+      path: '/:indexName:',
       method: 'PUT',
     }),
     deleteIndex: client.route({
-      path: '/:indexName',
+      path: '/:indexName:',
       method: 'DELETE',
     }),
     getDocument: client.route({
-      path: '/:indexName/:docType/:docId',
+      path: '/:indexName:/:docType:/:docId:',
       method: 'GET',
     }),
     addDocument: client.route({
-      path: '/:indexName/:docType/:docId',
+      path: '/:indexName:/:docType:/:docId:',
       method: 'POST',
     }),
     bulkOperation: client.route({
@@ -41,24 +41,33 @@ if (require.main === module) {
   const client = makeESClient('http://localhost:9200')
   let response
 
-  response = await client.createIndex('test-index')
+  response = await client.createIndex({ indexName: 'test-index' })
   delete response._rawResponse // This is a HUGE object
   console.log({ createIndex: { stringifiedResponse: JSON.stringify(response) } })
 
-  response = await client.addDocument('test-index', 'test-type', 'test-id', { payload: { a: { test: 'document' } } })
+  response = await client.addDocument({
+    indexName: 'test-index',
+    docType: 'test-type',
+    docId: 'test-id',
+    $payload: { a: { test: 'document' } },
+  })
   delete response._rawResponse // This is a HUGE object
   console.log({ addDocument: { stringifiedResponse: JSON.stringify(response) } })
 
-  response = await client.getDocument('test-index', 'test-type', 'test-id')
+  response = await client.getDocument({
+    indexName: 'test-index',
+    docType: 'test-type',
+    docId: 'test-id',
+  })
   delete response._rawResponse // This is a HUGE object
   console.log({ getDocument: { stringifiedResponse: JSON.stringify(response) } })
 
   response = await client.bulkOperation({
-    payload: `{"index":{"_index":"test-index","_type":"test-type","_id":"bulk-document-id"}}
+    $payload: `{"index":{"_index":"test-index","_type":"test-type","_id":"bulk-document-id"}}
 {"a":{"test":"bulkoperation"}}
 `
   })
   delete response._rawResponse // This is a HUGE object
-  console.log({ getDocument: { stringifiedResponse: JSON.stringify(response) } })
+  console.log({ bulkOperation: { stringifiedResponse: JSON.stringify(response) } })
 })()
 }

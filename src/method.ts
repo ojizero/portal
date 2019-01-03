@@ -22,16 +22,47 @@ export interface MethodSpec {
   headers?: OutgoingHttpHeaders,
 }
 
-export type RequestConfig = ClientRequestConfig & {
-  path?: any[] | { [p: string]: any },
-  payload?: any,
-  queryString?: { [q: string]: any },
+export type RequestConfig = {
+  /**
+   * This following represents two separate values
+   * the first is the object keys contianed
+   * in the path arugments defined by
+   * the method specificition.
+   *
+   * The second is a list of `$` prefixed options
+   * that are the options that can configure
+   * the underlying client. Those had to
+   * be defined very loosely as there's
+   * no way to augment keys in type
+   * mapping. More details: https://github.com/Microsoft/TypeScript/issues/12754
+   */
+  // [clientConfigButPrefixedWith$: string]: any,
+  [pathArgument: string]: any,
+  // Helper parameters to pass body, querystrings, and headers easily
+  $payload?: any,
+  $querystring?: { [q: string]: any },
+  $headers?: OutgoingHttpHeaders,
 }
-export type RouteFunction = (...args: any[]) => Promise<Response>
+
+export type RouteFunction = (params: RequestConfig) => Promise<Response>
 export type MethodFactory = (spec: MethodSpec) => RouteFunction
 
-function isRequestConfig (arg: any): arg is RequestConfig {
-  return typeof arg === 'object'
+function extractConfigs (args: { [k: string]: any }): ClientRequestConfig {
+  return Object.entries(args)
+    .filter(([key]) => key.startsWith('$'))
+    .reduce((acc, [key, value]) => ({
+      ...acc,
+      [key]: value
+    }), {})
+}
+
+function extractPathArguments (args: { [k: string]: any }): { [k: string]: any } {
+  return Object.entries(args)
+    .filter(([key]) => !key.startsWith('$'))
+    .reduce((acc, [key, value]) => ({
+      ...acc,
+      [key]: value
+    }), {})
 }
 
 export function methodGenerator (client: Client): MethodFactory {
@@ -39,9 +70,9 @@ export function methodGenerator (client: Client): MethodFactory {
     const {
       path,
       method: _method = 'GET',
-      params = undefined,
-      body = undefined,
-      queryString = undefined,
+      params: paramsSpec = undefined,
+      body: bodySpec = undefined,
+      queryString: querySpec = undefined,
       contentType = applicationJson,
       accept = applicationJson,
       headers = {},
@@ -57,40 +88,31 @@ export function methodGenerator (client: Client): MethodFactory {
       }
     }
 
-    return async function (...args: any[]): Promise<Response> {
-      let length = args.length
+    return async function (params: RequestConfig = {}): Promise<Response> {
+      const {
+        $payload: payload,
+        $querystring: querystring,
+        $headers: headers = {},
+        ...args
+      } = params
 
-      let config: RequestConfig = {}
+      let query = querystring
 
-      if (isRequestConfig(args[length - 1])) {
-        config = args[length - 1]
-        args = args.slice(0, length - 1)
-        length -= 1
+      let options = {
+        headers,
+        ...extractConfigs(args),
       }
 
-      let {
-        queryString: query,
-        payload,
-        ...options
-      } = config
+      const pathArguments = extractPathArguments(args)
 
-      ensureValidData(params, args, 'Parameters')
-      ensureValidData(body, payload, 'Payload')
-      ensureValidData(queryString, query, 'Query string')
+      ensureValidData(paramsSpec, pathArguments, 'Parameters')
+      ensureValidData(bodySpec, payload, 'Payload')
+      ensureValidData(querySpec, query, 'Query string')
 
-      // Regexp here is global we wanna
-      // match all avaialbel parameters
-      let paramsCount: number = (path.match(/:[^\/:&?]+/g) || []).length
+      let fullPath = Object.entries(pathArguments)
+        .reduce((acc, [key, value]) => acc.replace(`:${key}:`, value), path)
 
-      let fullPath: string = args.reduce((acc, arg) => {
-        paramsCount -= 1
-
-        // Regexp here isn't global we wanna
-        // match the first parameter only
-        return acc.replace(/:[^\/:&?]+/, arg)
-      }, path)
-
-      if (paramsCount !== 0) throw new Error('Number of provided parameters does not macth request path arguments')
+      if (fullPath.includes(':')) throw new Error('Provided arguments do not match full arguments required by path')
 
       if (query) {
         let attachedQuery
@@ -104,7 +126,7 @@ export function methodGenerator (client: Client): MethodFactory {
         fullPath = `${fullPath}?${stringifyQuery(query)}`
       }
 
-      options = defaults({}, defaultOptions, options)
+      options = defaults({}, options, defaultOptions)
 
       return client.request(method, fullPath, payload, options)
     }

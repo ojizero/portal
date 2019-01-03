@@ -53,7 +53,7 @@ describe('Client', () => {
 
       expect(requestOptions).to.deep.equal({
         baseUrl: "https://dummy.domain",
-        body: "{}",
+        body: {},
         headers: {},
         json: false,
         method: "GET",
@@ -73,7 +73,7 @@ describe('Client', () => {
 
       expect(requestOptions).to.deep.equal({
         baseUrl: "https://dummy.domain",
-        body: "{}",
+        body: {},
         headers: { some: 'mock' },
         json: false,
         method: "GET",

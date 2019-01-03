@@ -12,7 +12,7 @@ const mockGetMethodNoParams: MethodSpec = {
 }
 
 const mockGetMethodWithParams: MethodSpec = {
-  path: '/mock-path/:param',
+  path: '/mock-path/:param:',
   accept: 'mock/type',
   contentType: 'mock/type',
 }
@@ -28,7 +28,7 @@ const mockPostMethodNoParams: MethodSpec = {
 }
 
 const mockPostMethodWithParams: MethodSpec = {
-  path: '/mock-path/:param',
+  path: '/mock-path/:param:',
   method: 'POST',
   // TODO: specify body spec
   accept: 'mock/type',
@@ -36,7 +36,7 @@ const mockPostMethodWithParams: MethodSpec = {
 }
 
 const mockGetMethodWithQueryString: MethodSpec = {
-  path: '/mock-path/:param',
+  path: '/mock-path/:param:',
   accept: 'mock/type',
   contentType: 'mock/type',
   queryString: Joi.object({
@@ -99,7 +99,7 @@ describe('Method', async () => {
     it('passes path parameters if specified', async () => {
       methodFunction = methodGenerator(mockGetMethodWithParams)
 
-      await methodFunction(10)
+      await methodFunction({ param: 10 })
 
       expect(client.request)
         .to.have.been.calledOnceWithExactly(
@@ -125,7 +125,7 @@ describe('Method', async () => {
       methodFunction = methodGenerator(mockPostMethodNoParams)
       const payload = { some: { mock: 'payload '} }
 
-      await methodFunction({ payload })
+      await methodFunction({ $payload: payload })
 
       expect(client.request)
         .to.have.been.calledOnceWithExactly(
@@ -145,7 +145,10 @@ describe('Method', async () => {
       methodFunction = methodGenerator(mockPostMethodWithParams)
       const payload = { some: { mock: 'payload '} }
 
-      await methodFunction(10, { payload })
+      await methodFunction({
+        param: 10,
+        $payload: payload,
+      })
 
       expect(client.request)
         .to.have.been.calledOnceWithExactly(
@@ -171,7 +174,10 @@ describe('Method', async () => {
       methodFunction = methodGenerator(mockGetMethodWithQueryString)
       const queryString = { some_arg: 'a-string' }
 
-      await methodFunction(10, { queryString })
+      await methodFunction({
+        param: 10,
+        $querystring: queryString,
+      })
 
       expect(client.request)
         .to.have.been.calledOnceWithExactly(
