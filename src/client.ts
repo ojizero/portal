@@ -45,6 +45,8 @@ export interface RawResponse {
   headers: IncomingHttpHeaders,
 }
 
+export const rawResponseSymbol = Symbol.for('portal:symbols:raw-response')
+
 export interface Response {
   status: {
     code?: number,
@@ -52,7 +54,7 @@ export interface Response {
   },
   body: any,
   headers: IncomingHttpHeaders,
-  _rawResponse: RawResponse,
+  [rawResponseSymbol]: RawResponse,
 }
 
 export type RequestBodyObject = { [k: string]: any }
@@ -218,7 +220,7 @@ export class PortalClient implements Client {
       },
       body: response.body, // TODO: should it be parsed if needed ?
       headers: response.headers,
-      _rawResponse: response,
+      [rawResponseSymbol]: response,
     }
   }
 }

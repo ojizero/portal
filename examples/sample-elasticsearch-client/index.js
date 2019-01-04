@@ -42,15 +42,12 @@ if (require.main === module) {
   let response
 
   response = await client.createIndex('test-index')
-  delete response._rawResponse // This is a HUGE object
   console.log({ createIndex: { stringifiedResponse: JSON.stringify(response) } })
 
   response = await client.addDocument('test-index', 'test-type', 'test-id', { payload: { a: { test: 'document' } } })
-  delete response._rawResponse // This is a HUGE object
   console.log({ addDocument: { stringifiedResponse: JSON.stringify(response) } })
 
   response = await client.getDocument('test-index', 'test-type', 'test-id')
-  delete response._rawResponse // This is a HUGE object
   console.log({ getDocument: { stringifiedResponse: JSON.stringify(response) } })
 
   response = await client.bulkOperation({
@@ -58,7 +55,6 @@ if (require.main === module) {
 {"a":{"test":"bulkoperation"}}
 `
   })
-  delete response._rawResponse // This is a HUGE object
   console.log({ getDocument: { stringifiedResponse: JSON.stringify(response) } })
 })()
 }

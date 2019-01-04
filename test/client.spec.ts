@@ -1,6 +1,13 @@
 /// <reference path='typings/globals.d.ts' />
 
-import Client, { Config, RawResponse, Authentication, ClientFn, Response } from '../src/client'
+import Client, {
+  Config,
+  RawResponse,
+  Authentication,
+  ClientFn,
+  Response,
+  rawResponseSymbol,
+} from '../src/client'
 
 const mockRawResponse: RawResponse = {
   body: 'any',
@@ -16,7 +23,7 @@ const mockTransformedResponse: Response = {
   },
   body: 'any',
   headers: { some: 'header' },
-  _rawResponse: mockRawResponse,
+  [rawResponseSymbol]: mockRawResponse,
 }
 
 const mockConfig: Config = {
@@ -53,7 +60,7 @@ describe('Client', () => {
 
       expect(requestOptions).to.deep.equal({
         baseUrl: "https://dummy.domain",
-        body: "{}",
+        body: {},
         headers: {},
         json: false,
         method: "GET",
@@ -73,7 +80,7 @@ describe('Client', () => {
 
       expect(requestOptions).to.deep.equal({
         baseUrl: "https://dummy.domain",
-        body: "{}",
+        body: {},
         headers: { some: 'mock' },
         json: false,
         method: "GET",
