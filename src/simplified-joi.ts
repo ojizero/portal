@@ -12,6 +12,10 @@ const JOI_MAPPING: { [k: string]: SchemaLike } = {
   // array: Joi.array(),
 }
 
+const isNotRequiredRegex = /notrequired/i
+
+const isNotRequired = isNotRequiredRegex.test.bind(isNotRequiredRegex)
+
 function isObject (value: any): value is { [k: string]: any } {
   return !!value && typeof value === 'object'
 }
@@ -45,15 +49,13 @@ export function transformSchema (schema: any): SchemaLike {
 
   const [schemaName, schemaOptions = ''] = (schema as string).split('|', 2)
 
-  const isNotRequired = /notrequired/i
-
   schema = JOI_MAPPING[schemaName]
 
   if (typeof schema === 'undefined') {
     throw new Error(`Requested Joi validator ${schema} unsupported or undefined.`)
   }
 
-  return isNotRequired.test(schemaOptions) ? schema : schema.required()
+  return isNotRequired(schemaOptions) ? schema : schema.required()
 }
 
 export default transformSchema

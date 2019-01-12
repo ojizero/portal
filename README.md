@@ -57,14 +57,16 @@ It also adds support for standardized validation for request arguments, query st
 With NPM
 
 ```
-npm i -S @ojizero/portal
+npm i -S got @ojizero/portal
 ```
 
 Or if you're into Yarn
 
 ```
-yarn add @ojizero/portal
+yarn add got @ojizero/portal
 ```
+
+We separate installation of `got` and `portal` to prepare for later support of multiple internal clients, mainly to support browsers using `ky` without introducing breaking changes.
 
 ## Usage
 
@@ -274,7 +276,7 @@ export interface Response {
   },
   body: any,
   headers: IncomingHttpHeaders,
-  _rawResponse: RawResponse,
+  [Symbol.for('portal:symbols:raw-response')]: RawResponse,
 }
 ```
 

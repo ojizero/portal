@@ -66,7 +66,7 @@ export class Resource {
       Object.defineProperty(this, route, {
         value: routeMethod,
         writable: false,
-        enumerable: true, // TODO: is it okay to have them enumerable ?
+        enumerable: true,
       })
 
       // Add is aliased as set
@@ -74,7 +74,7 @@ export class Resource {
         Object.defineProperty(this, 'set', {
           value: routeMethod,
           writable: false,
-          enumerable: true, // TODO: is it okay to have them enumerable ?
+          enumerable: true,
         })
       }
       // Del is aliased as delete
@@ -82,7 +82,7 @@ export class Resource {
         Object.defineProperty(this, 'delete', {
           value: routeMethod,
           writable: false,
-          enumerable: true, // TODO: is it okay to have them enumerable ?
+          enumerable: true,
         })
       }
     })
@@ -108,18 +108,24 @@ export class Resource {
     return method(this.client)
   }
 
-  setExtraMethods (extraMethods?: { [k:string]: any }) {
+  setExtraMethods (extraMethods?: { [k:string]: MethodSpec }) {
     if (!extraMethods) return
 
     Object.entries(extraMethods)
       .forEach(([method, spec]) => {
-        // TODO: should it be prefixed by basePath ?
+        const sep = spec.path.startsWith('/') ? '' : '/'
+
+        spec = {
+          ...spec,
+          path: `${this.baseRoute}${sep}${spec.path}`,
+        }
+
         const fn = this.methodFactory(spec)
 
         Object.defineProperty(this, method, {
           value: fn,
           writable: false,
-          enumerable: true, // TODO: is it okay to have them enumerable ?
+          enumerable: true,
         })
       })
   }
