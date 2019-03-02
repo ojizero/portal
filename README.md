@@ -57,16 +57,16 @@ It also adds support for standardized validation for request arguments, query st
 With NPM
 
 ```
-npm i -S got @ojizero/portal
+npm i -S @ojizero/portal
 ```
 
 Or if you're into Yarn
 
 ```
-yarn add got @ojizero/portal
+yarn add @ojizero/portal
 ```
 
-We separate installation of `got` and `portal` to prepare for later support of multiple internal clients, mainly to support browsers using `ky` without introducing breaking changes.
+<!-- We separate installation of `got` and `portal` to prepare for later support of multiple internal clients, mainly to support browsers using `ky` without introducing breaking changes. -->
 
 ## Usage
 

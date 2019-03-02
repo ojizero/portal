@@ -24,10 +24,8 @@
     "url": "https://github.com/ojizero/portal/issues"
   },
   "homepage": "https://github.com/ojizero/portal#readme",
-  "peerDependencies": {
-    "got": "^9.5.0"
-  },
   "dependencies": {
+    "got": "^9.6.0",
     "joi": "^14.3.1",
     "lodash.defaultsdeep": "^4.6.0"
   },
@@ -44,7 +42,6 @@
     "@types/sinon-chai": "^3.2.2",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "got": "^9.5.0",
     "mocha": "^5.2.0",
     "nyc": "^13.1.0",
     "sinon": "^7.2.2",
