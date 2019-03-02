@@ -1,23 +1,56 @@
-import PortalClient, { Client, Config } from './client'
+import PortalClient, { Client, ClientFn, Config as ClientConfig } from './client'
 
 import methodGenerator, { MethodFactory } from './method'
 import resrouceGenerator, { ResourceFactory } from './resource'
 
+// let got: ClientFn
+
+// try {
+//   got = require('got')
+// } catch (_) {}
 import got from 'got'
+
+
+// function forNode (clientType: ClientType | undefined): clientType is NodeClient {
+//   return typeof clientType === 'undefined' || (clientType.type === 'node' || clientType.type === 'got')
+// }
+
+// function getClient (config: PortalConfig): ClientFn {
+//   if (forNode(config.client)) return got
+
+//   throw new Error(`Unspported client config ${config.client}`)
+// }
+
+// export interface ClientType {
+//   type: 'node' | 'got', // | 'browser' | 'ky' | 'custom',
+// }
+
+// export interface NodeClient extends ClientType {
+//   type: 'node' | 'got',
+// }
+
+export interface PortalConfig {
+  // client?: NodeClient,
+}
+
+export type Config = ClientConfig & PortalConfig
+
+export const clientSymbol = Symbol.for('portal:symbols:client')
 
 export interface Portal {
   route: MethodFactory,
   resource: ResourceFactory,
-  _client: Client,
+  [clientSymbol]: Client,
 }
 
 export function createPortalClient (config: Config): Portal {
-  const client = new PortalClient(got, config)
+  const clientFn = got // getClient(config)
+  const client = new PortalClient(clientFn, config)
 
   const portal: Portal = {
     route: methodGenerator(client),
     resource: resrouceGenerator(client),
-    _client: client,
+    [clientSymbol]: client,
   }
 
   return portal

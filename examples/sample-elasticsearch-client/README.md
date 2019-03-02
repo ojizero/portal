@@ -4,10 +4,6 @@ This is a sample client build for Elasticsearch using Portal, is provides an API
 
 ## Usage
 
-```
-npm start # starts a docker container with elasticsearch instance
-
-node ./index.js # run the sample code
-
-npm stop # stop and remove the docker container
+```bash
+npm test # starts a docker image for elasticsearch, runs index.js then kill the container
 ```

@@ -66,6 +66,8 @@ Or if you're into Yarn
 yarn add @ojizero/portal
 ```
 
+<!-- We separate installation of `got` and `portal` to prepare for later support of multiple internal clients, mainly to support browsers using `ky` without introducing breaking changes. -->
+
 ## Usage
 
 Aimed to be used as a building block for API client libraries
@@ -274,7 +276,7 @@ export interface Response {
   },
   body: any,
   headers: IncomingHttpHeaders,
-  _rawResponse: RawResponse,
+  [Symbol.for('portal:symbols:raw-response')]: RawResponse,
 }
 ```
 

@@ -55,6 +55,6 @@ if (require.main === module) {
 {"a":{"test":"bulkoperation"}}
 `
   })
-  console.log({ getDocument: { stringifiedResponse: JSON.stringify(response) } })
+  console.log({ bulkOperation: { stringifiedResponse: JSON.stringify(response) } })
 })()
 }

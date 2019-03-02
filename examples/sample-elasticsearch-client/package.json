@@ -6,7 +6,8 @@
   "main": "index.js",
   "scripts": {
     "start": "docker run --publish '9200:9200' --name elastic_portal_demo --detach elasticsearch:6.5.4 && while ! curl localhost:9200; do sleep 10; done",
-    "stop": "docker kill elastic_portal_demo && docker rm elastic_portal_demo"
+    "stop": "docker kill elastic_portal_demo && docker rm elastic_portal_demo",
+    "test": "npm start && node index.js && npm stop"
   },
   "license": "MIT",
   "dependencies": {
