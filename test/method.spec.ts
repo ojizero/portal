@@ -3,7 +3,7 @@
 import method, { MethodSpec } from '../src/method'
 
 import { Client } from '../src/client'
-import Joi from 'joi'
+import Joi from '@hapi/joi'
 
 const mockGetMethodNoParams: MethodSpec = {
   path: '/mock-path',

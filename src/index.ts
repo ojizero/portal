@@ -59,9 +59,9 @@ export function createPortalClient (config: Config): Portal {
 export { MethodSpec } from './method'
 export { Client, rawResponseSymbol } from './client'
 
-// Can't a the moment run export { * as Joi } from 'joi'
+// Can't a the moment run export { * as Joi } from '@hapi/joi'
 // so this clumsy way is the solution re-export
-import * as Joi from 'joi'
+import * as Joi from '@hapi/joi'
 export { Joi }
 
 export default createPortalClient

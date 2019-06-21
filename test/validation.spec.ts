@@ -2,7 +2,7 @@
 
 import { ensureValidData } from '../src/validation'
 
-import Joi, { valid } from 'joi'
+import Joi, { valid } from '@hapi/joi'
 
 const joiSchema = Joi.object({
   correctKey: Joi.strict().required()

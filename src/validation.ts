@@ -1,4 +1,4 @@
-import { SchemaLike, validate } from 'joi'
+import { SchemaLike, validate } from '@hapi/joi'
 import transformSchema from './simplified-joi'
 
 export interface Validator {

@@ -25,8 +25,8 @@
   },
   "homepage": "https://github.com/ojizero/portal#readme",
   "dependencies": {
+    "@hapi/joi": "^15.0.3",
     "got": "^9.6.0",
-    "joi": "^14.3.1",
     "lodash.defaultsdeep": "^4.6.0"
   },
   "devDependencies": {
@@ -34,7 +34,7 @@
     "@types/chai-as-promised": "^7.1.0",
     "@types/expect": "^1.20.4",
     "@types/got": "^9.6.0",
-    "@types/joi": "^14.3.3",
+    "@types/hapi__joi": "^15.0.2",
     "@types/lodash.defaultsdeep": "^4.6.6",
     "@types/mocha": "^5.2.7",
     "@types/node": "^10.14.9",

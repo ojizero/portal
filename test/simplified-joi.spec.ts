@@ -1,6 +1,6 @@
 /// <reference path='typings/globals.d.ts' />
 
-import Joi from 'joi'
+import Joi from '@hapi/joi'
 import transformSchema from '../src/simplified-joi'
 
 describe('Transform simplified validation schema to Joi schemas', () => {

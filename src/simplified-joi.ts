@@ -1,4 +1,4 @@
-import Joi, { SchemaLike } from 'joi'
+import Joi, { SchemaLike } from '@hapi/joi'
 
 const JOI_MAPPING: { [k: string]: SchemaLike } = {
   string: Joi.string(),
