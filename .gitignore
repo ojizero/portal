@@ -37,3 +37,6 @@ node_modules/
 
 # Compiled code
 lib
+
+# Lock file
+package-lock.json
