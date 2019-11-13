@@ -1,6 +1,8 @@
 import { SchemaLike, validate } from '@hapi/joi'
 import transformSchema from './simplified-joi'
 
+// https://github.com/ianstormtaylor/superstruct
+
 export interface Validator {
   validate (data: any[] | {}): boolean
 }

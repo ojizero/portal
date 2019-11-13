@@ -1,4 +1,8 @@
-import { Client, Response, RequestConfig as ClientRequestConfig } from './client'
+import {
+  Client,
+  Response,
+  RequestConfig as ClientRequestConfig
+} from './client'
 
 import defaults from 'lodash.defaultsdeep'
 import {
@@ -7,7 +11,10 @@ import {
 } from 'querystring'
 
 import { OutgoingHttpHeaders } from 'http'
-import { ValdiationSpec, ensureValidData } from './validation'
+import {
+  ValdiationSpec,
+  ensureValidData as ensureValidInput,
+} from './validation'
 
 const applicationJson = 'application/json'
 
@@ -15,6 +22,7 @@ export interface MethodSpec {
   path: string,
   method?: string,
   params?: ValdiationSpec,
+  // validator?: ValdiationSpec,
   body?: ValdiationSpec,
   queryString?: ValdiationSpec,
   contentType?: string,
@@ -22,12 +30,14 @@ export interface MethodSpec {
   headers?: OutgoingHttpHeaders,
 }
 
+export type Input = { [k: string]: any }
 export type RequestConfig = ClientRequestConfig & {
   path?: any[] | { [p: string]: any },
   payload?: any,
   queryString?: { [q: string]: any },
 }
-export type RouteFunction = (...args: any[]) => Promise<Response>
+
+export type RouteFunction = (payload: Input, conf: RequestConfig) => Promise<Response>
 export type MethodFactory = (spec: MethodSpec) => RouteFunction
 
 function isRequestConfig (arg: any): arg is RequestConfig {
@@ -57,38 +67,25 @@ export function methodGenerator (client: Client): MethodFactory {
       }
     }
 
-    return async function (...args: any[]): Promise<Response> {
-      let length = args.length
-
-      let config: RequestConfig = {}
-
-      if (isRequestConfig(args[length - 1])) {
-        config = args[length - 1]
-        args = args.slice(0, length - 1)
-        length -= 1
-      }
-
+    return async function (input: Input, conf: RequestConfig = {}): Promise<Response> {
       let {
         queryString: query,
-        payload,
+        payload: confPayload,
         ...options
-      } = config
+      } = conf
 
-      ensureValidData(params, args, 'Parameters')
-      ensureValidData(body, payload, 'Payload')
-      ensureValidData(queryString, query, 'Query string')
+      ensureValidInput(params, input, 'Input')
 
       // Regexp here is global we wanna
       // match all avaialbel parameters
-      let paramsCount: number = (path.match(/:[^\/:&?]+/g) || []).length
+      let paramsCount: number = (path.match(/:[^:]+:/g) || []).length
 
-      let fullPath: string = args.reduce((acc, arg) => {
-        paramsCount -= 1
+      let fullPath: string = Object.entries(input)
+        .reduce((acc, [key, value]) => {
+          paramsCount -= 1
 
-        // Regexp here isn't global we wanna
-        // match the first parameter only
-        return acc.replace(/:[^\/:&?]+/, arg)
-      }, path)
+          return acc.replace(`:${key}:`, value)
+        }, path)
 
       if (paramsCount !== 0) throw new Error('Number of provided parameters does not macth request path arguments')
 
@@ -104,9 +101,12 @@ export function methodGenerator (client: Client): MethodFactory {
         fullPath = `${fullPath}?${stringifyQuery(query)}`
       }
 
-      options = defaults({}, defaultOptions, options)
-
-      return client.request(method, fullPath, payload, options)
+      return client.request(
+        method,
+        fullPath,
+        defaults({}, confPayload, input),
+        defaults({}, defaultOptions, options),
+      )
     }
   }
 }
